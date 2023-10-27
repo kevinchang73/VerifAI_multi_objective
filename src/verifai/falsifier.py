@@ -30,7 +30,7 @@ class falsifier(ABC):
             error_table_path=None, safe_table_path=None,
             n_iters=1000, ce_num_max=np.inf, fal_thres=0,
             max_time=None,
-            sampler_params=None, verbosity=0,
+            sampler_params=None, verbosity=1,
         )
         if falsifier_params is not None:
             params.update(falsifier_params)
@@ -147,6 +147,9 @@ class falsifier(ABC):
                 ' (', progressbar.Timer(), ')']
                 bar = progressbar.ProgressBar(widgets=widgets)
 
+        print('Sampler =', self.sampler)
+        print('Sampler type =', self.sampler_type)
+        print('self.multi =', self.multi)
         try:
             while True:
                 try:

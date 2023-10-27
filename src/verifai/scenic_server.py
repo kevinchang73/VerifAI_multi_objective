@@ -42,7 +42,7 @@ class ScenicServer(Server):
             self.rejectionFeedback = extSampler.rejectionFeedback
         self.monitor = monitor
         self.lastValue = None
-        defaults = DotMap(maxSteps=None, verbosity=0, maxIterations=1, simulator=None)
+        defaults = DotMap(maxSteps=None, verbosity=1, maxIterations=1, simulator=None)
         defaults.update(options)
         self.maxSteps = defaults.maxSteps
         self.verbosity = defaults.verbosity
