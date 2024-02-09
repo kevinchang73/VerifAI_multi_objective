@@ -1,1 +1,1 @@
-python multi_objective_falsification_new.py -n 2 --headless -e test_multi -p intersection_01.scenic -s mab
+python multi_01.py -n 10 --headless -e multi_01 -p multi_01.scenic -s mab

@@ -43,8 +43,8 @@ behavior EgoBehavior(trajectory):
 		do FollowTrajectoryBehavior(target_speed=globalParameters.EGO_SPEED, trajectory=trajectory)
 	interrupt when withinDistanceToAnyObjs(self, globalParameters.SAFETY_DIST):
 		take SetBrakeAction(globalParameters.EGO_BRAKE)
-	interrupt when withinDistanceToAnyObjs(self, CRASH_DIST):
-		terminate
+	#interrupt when withinDistanceToAnyObjs(self, CRASH_DIST):
+	#	terminate
 
 #################################
 # SPATIAL RELATIONS             #

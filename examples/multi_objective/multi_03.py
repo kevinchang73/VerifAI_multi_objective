@@ -1,8 +1,8 @@
 """
 Framework for experimentation of parallel and multi-objective falsification.
+Scenario: multi_01.scenic
 
-Author: Kesav Viswanadha
-Email: kesav@berkeley.edu
+Author: Kai-Chun Chang. Based on Kesav Viswanadha's code.
 """
 
 import time
@@ -50,15 +50,36 @@ class distance_multi(multi_objective_monitor):
         print(f'Initialized priority graph with {self.num_objectives} objectives')
         def specification(simulation):
             positions = np.array(simulation.result.trajectory)
-            distances = positions[:, [0], :] - positions[:, [1], :]
-            distances = np.linalg.norm(distances, axis=2)
+            distances_to_adv1 = positions[:, [0], :] - positions[:, [1], :]
+            distances_to_adv1 = np.linalg.norm(distances_to_adv1, axis=2) # compute the distance based on differences on x and y coordinates
+            distances_to_adv2 = positions[:, [0], :] - positions[:, [2], :]
+            distances_to_adv2 = np.linalg.norm(distances_to_adv2, axis=2)
+            distances_to_adv3 = positions[:, [0], :] - positions[:, [3], :]
+            distances_to_adv3 = np.linalg.norm(distances_to_adv3, axis=2)
             actions = np.array(simulation.result.actions)
+            egotointersection = np.array(simulation.result.records["egotointersection"])
+            # In every timestep, the distance between the ego and each adversary vehicle should be larger than 5
             if self.to_print:
-                print(positions.shape)
-                print(actions.shape)
+                adv1_falsify = False
+                adv2_falsify = False
+                adv3_falsify = False
+                #print(positions.shape)
+                #print(actions.shape)
                 for t in range(len(positions)):
-                    print(t, positions[t][0][0], positions[t][0][1], positions[t][1][0], positions[t][1][1], distances[t][0])
-            rho = np.min(distances, axis=0) - 5
+                    #print(t, distances_to_adv1[t][0], distances_to_adv2[t][0], distances_to_adv3[t][0], egotointersection[t][1], distances_to_adv1[t][0] < 5, distances_to_adv2[t][0] < 5, distances_to_adv3[t][0] < 5)
+                    if distances_to_adv1[t][0] < 5:
+                        adv1_falsify = True
+                    if distances_to_adv2[t][0] < 5:
+                        adv2_falsify = True
+                    if distances_to_adv3[t][0] < 5:
+                        adv3_falsify = True
+                    #print(t, positions[t][0][0], positions[t][0][1], positions[t][1][0], positions[t][1][1], positions[t][2][0], positions[t][2][1], positions[t][3][0], positions[t][3][1], distances_to_adv1[t][0], distances_to_adv2[t][0], distances_to_adv3[t][0])
+                print("Result =", adv1_falsify, adv2_falsify, adv3_falsify)
+            rho = np.array([1])
+            if np.min(distances_to_adv1, axis=0) < 5 and np.min(distances_to_adv2, axis=0) < 5 and np.min(distances_to_adv3, axis=0) < 5:
+                rho = np.array([-1])
+            #rho = np.concatenate((np.min(distances_to_adv1, axis=0) - 5, np.min(distances_to_adv2, axis=0) - 5, np.min(distances_to_adv3, axis=0) - 5), axis=0)
+            #rho = np.min(distances_to_adv1, axis=0) - 5
             return rho
         
         super().__init__(specification, priority_graph)
@@ -135,7 +156,7 @@ def run_experiment(path, parallel=False, model=None,
     params = {'verifaiSamplerType': sampler_type} if sampler_type else {}
     params['render'] = not headless
     #print('Sampler type: ', sampler_type)
-    sampler = ScenicSampler.fromScenario(path, params=params, model=model)
+    sampler = ScenicSampler.fromScenario(path, maxIterations=10000, params=params, model=model)
     num_objectives = sampler.scenario.params.get('N', 1)
     s_type = sampler.scenario.params.get('verifaiSamplerType', None)
     announce(f'num_objectives: {num_objectives}, sampler_type: {s_type}')
