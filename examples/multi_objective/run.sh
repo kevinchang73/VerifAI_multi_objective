@@ -1,1 +1,1 @@
-python multi_01.py -n 10 --headless -e multi_01 -p multi_01.scenic -s mab
+python multi_03.py -n 2 --headless -e multi_03 -p multi_03.scenic -s mab
