@@ -38,7 +38,7 @@ class error_table():
         self.table.columns = column_names
         self.column_names = column_names
 
-    def update_error_table(self, sample, rho):
+    def update_error_table(self, sample, rho, is_multi=False):
         sample = self.space.flatten(sample, fixedDimension=True)
         sample_dict = {}
         for k, v in zip(self.table.columns, list(sample)):
@@ -46,7 +46,7 @@ class error_table():
                 locs = np.where(np.array(sample) == None)
                 self.ignore_locs = self.ignore_locs + list(locs[0])
             sample_dict[k] = float(v) if self.column_type[k] and v is not None else v
-        if isinstance(rho, (list, tuple)):
+        if is_multi or isinstance(rho, (list, tuple)):
             for i,r in enumerate(rho[:-1]):
                 if "rho_" + str(i) not in self.column_names:
                     self.column_names.append("rho_"+str(i))

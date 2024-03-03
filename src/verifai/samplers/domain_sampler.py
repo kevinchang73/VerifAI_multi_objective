@@ -165,11 +165,14 @@ class BoxSampler(DomainSampler):
         pass
 
     def set_graph(self, graph):
+        print('(domain_sampler.py) Set priority graph')
+        print('(domain_sampler.py) graph =', graph)
         self.priority_graph = graph
         if graph is not None:
             self.thres = [self.thres] * graph.number_of_nodes()
             self.num_properties = graph.number_of_nodes()
             self.is_multi = True
+        print('(domain_sampler.py) self.num_properties =', self.num_properties)
 
 class DiscreteBoxSampler(DomainSampler):
     """Samplers defined only over discrete hyperboxes"""

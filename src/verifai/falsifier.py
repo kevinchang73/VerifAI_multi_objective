@@ -71,7 +71,7 @@ class falsifier(ABC):
 
         self.server = server_class(sampling_data, self.monitor, options=server_options)
         if self.verbosity >= 1:
-            print("Server ready")
+            print("Server ready!!!")
 
     def init_error_table(self):
         # Initializing error table
@@ -82,11 +82,11 @@ class falsifier(ABC):
 
     def populate_error_table(self, sample, rho, error=True):
         if error:
-            self.error_table.update_error_table(sample, rho)
+            self.error_table.update_error_table(sample, rho, is_multi=self.multi)
             if self.error_table_path:
                 self.write_table(self.error_table.table, self.error_table_path)
         else:
-            self.safe_table.update_error_table(sample, rho)
+            self.safe_table.update_error_table(sample, rho, is_multi=self.multi)
             if self.safe_table_path:
                 self.write_table(self.safe_table.table, self.safe_table_path)
 
@@ -153,6 +153,7 @@ class falsifier(ABC):
         try:
             while True:
                 try:
+                    print('(falsifier.py) run_falsifier')
                     sample, rho, timings = self.server.run_server()
                     self.total_sample_time += timings.sample_time
                     self.total_simulate_time += timings.simulate_time
@@ -160,7 +161,7 @@ class falsifier(ABC):
                     if self.verbosity >= 1:
                         print("Sampler has generated all possible samples")
                     break
-                if self.verbosity >= 2:
+                if self.verbosity >= 1:
                     print("Sample no: ", i, "\nSample: ", sample, "\nRho: ", rho)
                 self.samples[i] = sample
                 server_samples.append(sample)
@@ -244,7 +245,7 @@ class generic_parallel_falsifier(parallel_falsifier):
 
     def init_server(self, server_options, server_class):
         if self.verbosity >= 1:
-            print("Initializing server")
+            print("Initializing parallel server")
         sampling_data = DotMap()
         if self.sampler_type is None:
             self.sampler_type = 'random'

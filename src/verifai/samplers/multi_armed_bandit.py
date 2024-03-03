@@ -6,9 +6,12 @@ from verifai.samplers.domain_sampler import BoxSampler, DiscreteBoxSampler, \
 from verifai.samplers.random_sampler import RandomSampler
 from verifai.samplers.cross_entropy import DiscreteCrossEntropySampler
 from verifai.samplers.multi_objective import MultiObjectiveSampler
+from verifai.rulebook import rulebook
 
 class MultiArmedBanditSampler(DomainSampler):
     def __init__(self, domain, mab_params):
+        print('(multi_armed_bandit.py) Initializing!!!')
+        print('(multi_armed_bandit.py) mab_params =', mab_params)
         super().__init__(domain)
         self.alpha = mab_params.alpha
         self.thres = mab_params.thres
@@ -36,8 +39,10 @@ class MultiArmedBanditSampler(DomainSampler):
         for subsampler in self.split_sampler.samplers:
             if isinstance(subsampler, ContinuousMultiArmedBanditSampler):
                 assert self.cont_sampler is None
-                if 'priority_graph' in mab_params:
-                    subsampler.set_graph(mab_params.priority_graph)
+                ## TODO: set priority graph here
+                subsampler.set_graph(rulebook.priority_graph)
+                #if 'priority_graph' in mab_params:
+                #    subsampler.set_graph(mab_params.priority_graph)
                 self.cont_sampler = subsampler
             elif isinstance(subsampler, DiscreteMultiArmedBanditSampler):
                 assert self.disc_sampler is None
@@ -67,38 +72,38 @@ class ContinuousMultiArmedBanditSampler(BoxSampler, MultiObjectiveSampler):
             assert (len(dist) == len(buckets))
         if dist is None:
             dist = np.array([np.ones(int(b))/b for b in buckets])
-        self.buckets = buckets
-        self.dist = dist
+        self.buckets = buckets # 1*d, each element specifies the number of buckets in that dimension
+        self.dist = dist # N*d, ???
         self.alpha = alpha
         self.thres = thres
         self.current_sample = None
-        self.counts = np.array([np.ones(int(b)) for b in buckets])
-        self.errors = np.array([np.zeros(int(b)) for b in buckets])
-        self.t = 1
+        self.counts = np.array([np.ones(int(b)) for b in buckets]) # N*d, T (visit times)
+        self.errors = np.array([np.zeros(int(b)) for b in buckets]) # N*d, total times resulting in maximal counterexample
+        self.t = 1 # time, used in Q
         self.counterexamples = dict()
-        self.is_multi = False
-        self.invalid = np.array([np.zeros(int(b)) for b in buckets])
+        self.is_multi = True #False
+        self.invalid = np.array([np.zeros(int(b)) for b in buckets]) # N*d, ???
         self.monitor = None
         self.rho_values = []
         self.restart_every = restart_every
+        self.exploration_ratio = 8.0
 
     def getVector(self):
         return self.generateSample()
     
     def generateSample(self):
         proportions = self.errors / self.counts
-        Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
+        Q = proportions + np.sqrt(self.exploration_ratio / self.counts * np.log(self.t))
         # choose the bucket with the highest "goodness" value, breaking ties randomly.
         bucket_samples = np.array([np.random.choice(np.flatnonzero(np.isclose(Q[i], Q[i].max())))
             for i in range(len(self.buckets))])
         self.current_sample = bucket_samples
         ret = tuple(np.random.uniform(bs, bs+1.)/b for b, bs
-              in zip(self.buckets, bucket_samples))
+              in zip(self.buckets, bucket_samples)) # uniform randomly sample from the range of the bucket
         return ret, bucket_samples
     
     def updateVector(self, vector, info, rho):
         assert rho is not None
-        self.t += 1
         # "random restarts" to generate a new topological sort of the priority graph
         # every restart_every samples.
         if self.is_multi:
@@ -106,6 +111,7 @@ class ContinuousMultiArmedBanditSampler(BoxSampler, MultiObjectiveSampler):
                 self.monitor._linearize()
             self.update_dist_from_multi(vector, info, rho)
             return
+        self.t += 1
         for i, b in enumerate(info):
             self.counts[i][b] += 1.
             if rho < self.thres:
@@ -141,7 +147,7 @@ class ContinuousMultiArmedBanditSampler(BoxSampler, MultiObjectiveSampler):
     def counterexample_values(self):
         return [ce in self.counterexamples for ce in self.rho_values]
 
-    def _add_to_running(self, ce):
+    def _add_to_running(self, ce): # update maximal counterexample
         if ce in self.counterexamples:
             return True
         to_remove = set()
@@ -170,19 +176,24 @@ class ContinuousMultiArmedBanditSampler(BoxSampler, MultiObjectiveSampler):
             for i, b in enumerate(info):
                 self.invalid[i][b] += 1.
             return
-        # print('inside update_dist_from_multi')
         counter_ex = tuple(
             rho[node] < self.thres[node] for node in nx.dfs_preorder_nodes(self.priority_graph)
-        )
+        ) # vector of falsification 
         self.rho_values.append(counter_ex)
-        # print(f'counter_ex = {counter_ex}')
-        # print(self.counterexamples)
         is_ce = self._add_to_running(counter_ex)
         for i, b in enumerate(info):
             self.counts[i][b] += 1.
             if is_ce:
                 self.counterexamples[counter_ex][i][b] += 1.
-        self.errors = self.invalid + self._get_total_counterexamples()
+        #self.errors = self.invalid + self._get_total_counterexamples()
+        self.errors = self._get_total_counterexamples()
+        self.t += 1
+        print('counterexamples =', self.counterexamples)
+        for ce in self.counterexamples:
+            print('largest counterexamples =', ce, ', times =', int(np.sum(self.counterexamples[ce], axis = 1)[0]))
+        proportions = self.errors / self.counts
+        Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
+        print('Q =', Q, '\nfirst_term =', proportions, '\nsecond_term =', np.sqrt(self.exploration_ratio / self.counts * np.log(self.t)), '\nratio =', proportions/(proportions+np.sqrt(2 / self.counts * np.log(self.t))))
 
 class DiscreteMultiArmedBanditSampler(DiscreteCrossEntropySampler):
     pass
