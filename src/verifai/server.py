@@ -46,6 +46,8 @@ def choose_sampler(sample_space, sampler_type,
             sample_space, ce_params=ce_params)
         return 'ce', sampler
     if sampler_type == 'mab':
+        print('(server.py) Choosing mab sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
         if sampler_params is None:
             mab_params = default_sampler_params('mab')
         else:
@@ -66,6 +68,29 @@ def choose_sampler(sample_space, sampler_type,
         sampler = FeatureSampler.multiArmedBanditSamplerFor(
             sample_space, mab_params=mab_params)
         return 'mab', sampler
+    if sampler_type == 'emab':
+        print('(server.py) Choosing emab sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
+        if sampler_params is None:
+            emab_params = default_sampler_params('emab')
+        else:
+            emab_params = default_sampler_params('emab')
+            if 'cont' in sampler_params:
+                if 'buckets' in sampler_params.cont:
+                    emab_params.cont.buckets = sampler_params.cont.buckets
+                if 'dist' in sampler_params.cont:
+                    emab_params.cont.dist = sampler_params.cont.dist
+            if 'dist' in sampler_params.disc:
+                emab_params.disc.dist = sampler_params.disc.dist
+            if 'alpha' in sampler_params:
+                emab_params.alpha = sampler_params.alpha
+            if 'thres' in sampler_params:
+                emab_params.thres = sampler_params.thres
+            if 'priority_graph' in sampler_params:
+                emab_params.priority_graph = sampler_params.priority_graph
+        sampler = FeatureSampler.extendedMultiArmedBanditSamplerFor(
+            sample_space, emab_params=emab_params)
+        return 'emab', sampler
     if sampler_type == 'eg':
         if sampler_params is None:
             eg_params = default_sampler_params('eg')
