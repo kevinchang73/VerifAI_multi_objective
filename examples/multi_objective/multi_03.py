@@ -1,6 +1,6 @@
 """
 Framework for experimentation of parallel and multi-objective falsification.
-Scenario: multi_01.scenic
+Scenario: multi_03.scenic
 
 Author: Kai-Chun Chang. Based on Kesav Viswanadha's code.
 """
@@ -11,12 +11,14 @@ import numpy as np
 from dotmap import DotMap
 import traceback
 import argparse
+import importlib
 
 from verifai.samplers.scenic_sampler import ScenicSampler
 from verifai.scenic_server import ScenicServer
 from verifai.falsifier import generic_falsifier, generic_parallel_falsifier
 from verifai.monitor import multi_objective_monitor, specification_monitor
-from verifai.falsifier import generic_falsifier
+from verifai.rulebook import rulebook
+
 import networkx as nx
 import pandas as pd
 
@@ -40,13 +42,14 @@ must stay at least 5 meters away from each other vehicle in the scenario.
 """
 class distance_multi(multi_objective_monitor):
     def __init__(self, num_objectives=1, to_print=False):
-        priority_graph = nx.DiGraph()
         self.num_objectives = num_objectives
         self.to_print = to_print
-        priority_graph.add_edge(0, 2)
-        priority_graph.add_edge(1, 3)
-        priority_graph.add_edge(2, 4)
-        priority_graph.add_edge(3, 4)
+        # TODO: rulebook initialization process
+        priority_graph = nx.DiGraph(edge_removal=True)
+        priority_graph.add_edge(0, 1)
+        priority_graph.add_edge(1, 2)
+        rb = rulebook(priority_graph)
+        assert(self.num_objectives == priority_graph.number_of_nodes()) # for static rulebook
         print(f'Initialized priority graph with {self.num_objectives} objectives')
         def specification(simulation):
             positions = np.array(simulation.result.trajectory)
@@ -75,14 +78,10 @@ class distance_multi(multi_objective_monitor):
                         adv3_falsify = True
                     #print(t, positions[t][0][0], positions[t][0][1], positions[t][1][0], positions[t][1][1], positions[t][2][0], positions[t][2][1], positions[t][3][0], positions[t][3][1], distances_to_adv1[t][0], distances_to_adv2[t][0], distances_to_adv3[t][0])
                 print("Result =", adv1_falsify, adv2_falsify, adv3_falsify)
-            rho = np.array([1])
-            if np.min(distances_to_adv1, axis=0) < 5 and np.min(distances_to_adv2, axis=0) < 5 and np.min(distances_to_adv3, axis=0) < 5:
-                rho = np.array([-1])
-            #rho = np.concatenate((np.min(distances_to_adv1, axis=0) - 5, np.min(distances_to_adv2, axis=0) - 5, np.min(distances_to_adv3, axis=0) - 5), axis=0)
-            #rho = np.min(distances_to_adv1, axis=0) - 5
+            rho = np.concatenate((np.min(distances_to_adv1, axis=0) - 5, np.min(distances_to_adv2, axis=0) - 5, np.min(distances_to_adv3, axis=0) - 5), axis=0)
             return rho
         
-        super().__init__(specification, priority_graph)
+        super().__init__(specification, priority_graph=rb.priority_graph, linearize=False)
 
 """
 Single-objective specification. This monitor is similar to the one above, but takes a
@@ -152,32 +151,40 @@ Arguments:
 def run_experiment(path, parallel=False, model=None,
                    sampler_type=None, headless=False, num_workers=5, max_time=None,
                    n_iters=5):
+    # Construct rulebook
+    monitor = distance_multi(3, True) # TODO: generalize
+
+    # Construct sampler (scenic_sampler.py)
     announce(f'RUNNING SCENIC SCRIPT {path}')
     params = {'verifaiSamplerType': sampler_type} if sampler_type else {}
     params['render'] = not headless
-    #print('Sampler type: ', sampler_type)
     sampler = ScenicSampler.fromScenario(path, maxIterations=10000, params=params, model=model)
     num_objectives = sampler.scenario.params.get('N', 1)
     s_type = sampler.scenario.params.get('verifaiSamplerType', None)
     announce(f'num_objectives: {num_objectives}, sampler_type: {s_type}')
+
+    # Construct falsifier (falsifier.py)
     multi = num_objectives > 1
     falsifier_params = DotMap(
         n_iters=n_iters,
         save_error_table=True,
         save_safe_table=True,
         max_time=max_time,
+        verbosity=1,
     )
     server_options = DotMap(maxSteps=300, verbosity=1,
                             scenic_path=path, scenario_params=params, scenario_model=model,
                             num_workers=num_workers)
-    monitor = distance() if not multi else distance_multi(num_objectives, True)
-
-    falsifier_cls = generic_parallel_falsifier if parallel else generic_falsifier
+    falsifier_class = generic_parallel_falsifier if parallel else generic_falsifier
+    falsifier = falsifier_class(monitor=monitor,
+                                sampler_type=s_type, 
+                                sampler=sampler, 
+                                falsifier_params=falsifier_params,
+                                server_options=server_options,
+                                server_class=ScenicServer)
+    announce(f'sampler_type: {falsifier.sampler_type}')
     
-    falsifier = falsifier_cls(sampler=sampler, falsifier_params=falsifier_params,
-                                  server_class=ScenicServer,
-                                  server_options=server_options,
-                                  monitor=monitor)
+    # Run falsification
     t0 = time.time()
     print('Running falsifier')
     falsifier.run_falsifier()

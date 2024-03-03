@@ -4,7 +4,7 @@
 # adv 3: reverse maneuver of adv 2, go straight
 
 """
-TITLE: Multi 01
+TITLE: Multi 03
 AUTHOR: Kai-Chun Chang, kaichunchang@berkeley.edu
 DESCRIPTION: Ego vehicle makes a left turn at a 4-way intersection while 
 one adversary vehicle from opposite lane goes straight and two adversary
@@ -19,7 +19,7 @@ SOURCE:
 param map = localPath('maps/Town05.xodr')
 param carla_map = 'Town05'
 param verifaiSamplerType = 'halton'
-param N = 5
+param N = 3
 model scenic.domains.driving.model
 #model scenic.simulators.carla.model
 
@@ -36,7 +36,7 @@ param EGO_BRAKE = VerifaiRange(0.5, 1.0)
 ADV_INIT_DIST = [10, 20] #[10, 15]
 param ADV_SPEED = VerifaiRange(7, 10)
 
-param SAFETY_DIST = VerifaiRange(10, 20)
+param SAFETY_DIST = VerifaiRange(10, 20) #15
 CRASH_DIST = 5
 TERM_DIST = 50 #70
 
