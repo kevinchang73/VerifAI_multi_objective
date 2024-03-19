@@ -4,6 +4,7 @@ from verifai.scenic_server import ScenicServer, ParallelScenicServer
 from verifai.samplers import TerminationException
 from dotmap import DotMap
 from verifai.monitor import mtl_specification, specification_monitor, multi_objective_monitor
+from verifai.rulebook import rulebook
 from verifai.error_table import error_table
 import numpy as np
 import progressbar
@@ -36,9 +37,11 @@ class falsifier(ABC):
             params.update(falsifier_params)
         if params.sampler_params is None:
             params.sampler_params = DotMap(thres=params.fal_thres)
-        self.multi = isinstance(self.monitor, multi_objective_monitor)
-        if self.multi:
+        self.multi = isinstance(self.monitor, multi_objective_monitor) or isinstance(self.monitor, rulebook)
+        if isinstance(self.monitor, multi_objective_monitor):
             params.sampler_params.priority_graph = self.monitor.graph
+        elif isinstance(self.monitor, rulebook):
+            params.sampler_params.priority_graph = self.monitor.priority_graph
         self.save_error_table = params.save_error_table
         self.save_safe_table = params.save_safe_table
         self.error_table_path = params.error_table_path

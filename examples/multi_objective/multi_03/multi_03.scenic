@@ -16,7 +16,7 @@ SOURCE:
 # MAP AND MODEL                 #
 #################################
 
-param map = localPath('maps/Town05.xodr')
+param map = localPath('../maps/Town05.xodr')
 param carla_map = 'Town05'
 param verifaiSamplerType = 'halton'
 param N = 3

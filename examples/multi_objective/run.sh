@@ -1,1 +1,2 @@
-python multi_03.py -n 200 --headless -e multi_03 -p multi_03.scenic -s emab
+python multi.py -n 10 --headless -e multi_03 -sp multi_03/multi_03.scenic -gp multi_03/multi_03.graph -rp multi_03/multi_03_spec.py -s mab
+#python multi_03.py -n 2 --headless -e multi_03 -p multi_03/multi_03.scenic -s emab
