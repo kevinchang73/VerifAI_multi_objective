@@ -91,6 +91,29 @@ def choose_sampler(sample_space, sampler_type,
         sampler = FeatureSampler.extendedMultiArmedBanditSamplerFor(
             sample_space, emab_params=emab_params)
         return 'emab', sampler
+    if sampler_type == 'demab':
+        print('(server.py) Choosing demab sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
+        if sampler_params is None:
+            demab_params = default_sampler_params('demab')
+        else:
+            demab_params = default_sampler_params('demab')
+            if 'cont' in sampler_params:
+                if 'buckets' in sampler_params.cont:
+                    demab_params.cont.buckets = sampler_params.cont.buckets
+                if 'dist' in sampler_params.cont:
+                    demab_params.cont.dist = sampler_params.cont.dist
+            if 'dist' in sampler_params.disc:
+                demab_params.disc.dist = sampler_params.disc.dist
+            if 'alpha' in sampler_params:
+                demab_params.alpha = sampler_params.alpha
+            if 'thres' in sampler_params:
+                demab_params.thres = sampler_params.thres
+            if 'priority_graph' in sampler_params:
+                demab_params.priority_graph = sampler_params.priority_graph
+        sampler = FeatureSampler.dynamicExtendedMultiArmedBanditSamplerFor(
+            sample_space, demab_params=demab_params)
+        return 'demab', sampler
     if sampler_type == 'eg':
         if sampler_params is None:
             eg_params = default_sampler_params('eg')

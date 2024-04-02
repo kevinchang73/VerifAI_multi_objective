@@ -38,10 +38,11 @@ class falsifier(ABC):
         if params.sampler_params is None:
             params.sampler_params = DotMap(thres=params.fal_thres)
         self.multi = isinstance(self.monitor, multi_objective_monitor) or isinstance(self.monitor, rulebook)
+        self.dynamic = isinstance(self.monitor, rulebook)
         if isinstance(self.monitor, multi_objective_monitor):
             params.sampler_params.priority_graph = self.monitor.graph
         elif isinstance(self.monitor, rulebook):
-            params.sampler_params.priority_graph = self.monitor.priority_graph
+            pass
         self.save_error_table = params.save_error_table
         self.save_safe_table = params.save_safe_table
         self.error_table_path = params.error_table_path
@@ -150,9 +151,11 @@ class falsifier(ABC):
                 ' (', progressbar.Timer(), ')']
                 bar = progressbar.ProgressBar(widgets=widgets)
 
-        print('Sampler =', self.sampler)
-        print('Sampler type =', self.sampler_type)
-        print('self.multi =', self.multi)
+        if self.verbosity >= 1:
+            print('Sampler =', self.sampler)
+            print('Sampler type =', self.sampler_type)
+            print('self.multi =', self.multi)
+            print('self.dynamic =', self.dynamic, '\n')
         try:
             while True:
                 try:
@@ -165,7 +168,7 @@ class falsifier(ABC):
                         print("Sampler has generated all possible samples")
                     break
                 if self.verbosity >= 1:
-                    print("Sample no: ", i, "\nSample: ", sample, "\nRho: ", rho)
+                    print("Sample no: ", i, "\nSample: ", sample, "\nRho: ", rho, "\n")
                 self.samples[i] = sample
                 server_samples.append(sample)
                 rhos.append(rho)
@@ -183,15 +186,23 @@ class falsifier(ABC):
                 bar.finish()
             self.server.terminate()
         for sample, rho in zip(server_samples, rhos):
-            ce = any([r <= self.fal_thres for r in rho]) if self.multi else rho <= self.fal_thres
-            if ce:
-                if self.save_error_table:
-                    self.populate_error_table(sample, rho)
-                ce_num = ce_num + 1
-                if ce_num >= self.ce_num_max:
-                    break
-            elif self.save_safe_table:
-                self.populate_error_table(sample, rho, error=False)
+            ce = False
+            if self.dynamic:
+                for r in rho:
+                    self.populate_error_table(sample, r)
+            else:
+                if self.multi:
+                    ce = any([r <= self.fal_thres for r in rho])
+                else:
+                    ce = rho <= self.fal_thres
+                if ce:
+                    if self.save_error_table:
+                        self.populate_error_table(sample, rho)
+                    ce_num = ce_num + 1
+                    if ce_num >= self.ce_num_max:
+                        break
+                elif self.save_safe_table:
+                    self.populate_error_table(sample, rho, error=False)
         if self.verbosity >= 1:
             print('Falsification complete.')
 

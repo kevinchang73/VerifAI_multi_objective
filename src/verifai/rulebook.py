@@ -3,6 +3,7 @@ import networkx as nx
 import mtl
 import ast
 import numpy as np
+import os
 
 from verifai.monitor import specification_monitor
 
@@ -14,25 +15,14 @@ class FunctionVisitor(ast.NodeVisitor):
         self.functions.append(node)
 
 class rulebook(ABC):
-    priority_graph = nx.DiGraph()
-
-    """
-    ### temporary workaround start ###
-    def __init__(self, graph):
-        self.set_graph(graph)
-
-    @classmethod
-    def set_graph(cls, graph):
-        cls.priority_graph = graph
-        print(f'Set priority graph =', cls.priority_graph)
-    ### temporary workaround end ###
-    """
-        
-    def __init__(self, graph_file, rule_file):
+    priority_graphs = {}
+    verbosity = 1
+    
+    def __init__(self, graph_path, rule_file):
         print('(rulebook.py) Parsing rules...')
         self._parse_rules(rule_file)
         print('(rulebook.py) Parsing rulebook...')
-        self._parse_rulebook(graph_file)
+        self._parse_rulebooks(graph_path)
 
     def _parse_rules(self, file_path):
         # Parse the input rules (*_spec.py)
@@ -53,28 +43,36 @@ class rulebook(ABC):
 
         print(f'Parsed functions: {self.functions}')
 
+    def _parse_rulebooks(self, dir):
+        if os.path.isdir(dir):
+            for root, _, files in os.walk(dir):
+                for name in files:
+                    fname = os.path.join(root, name)
+                    if os.path.splitext(fname)[1] == '.graph':
+                        self._parse_rulebook(fname)
+
     def _parse_rulebook(self, file):
         # TODO: parse the input rulebook
         # 1. construct the priority_graph
         # 2. construct a dictionary mapping from each node_id to corresponding rule object
-        self.priority_graph.clear()
+        priority_graph = nx.DiGraph()
+        graph_id = -1
         with open(file, 'r') as f:
             lines = f.readlines()
             node_section = False
             edge_section = False
-            update_section = False
             for line in lines:
                 line = line.strip()
-                if line == '## Node list':
+                if line.startswith('# ID'):
+                    graph_id = int(line.split(' ')[-1])
+                    if self.verbosity >= 1:
+                        print(f'Parsing graph {graph_id}')
+                if line == '# Node list':
                     node_section = True
                     continue
-                elif line == '## Edge list':
+                elif line == '# Edge list':
                     node_section = False
                     edge_section = True
-                    continue
-                elif line == '# Graph update':
-                    edge_section = False
-                    update_section = True
                     continue
                 
                 # Node
@@ -86,8 +84,9 @@ class rulebook(ABC):
                     rule_type = node_info[3]
                     if rule_type == 'monitor':
                         ru = rule(node_id, self.functions[rule_name], rule_type)
-                        self.priority_graph.add_node(node_id, rule=ru, active=node_active, name=rule_name)
-                        print(f'Add node {node_id} with rule {rule_name}')
+                        priority_graph.add_node(node_id, rule=ru, active=node_active, name=rule_name)
+                        if self.verbosity >= 2:
+                            print(f'Add node {node_id} with rule {rule_name}')
                     #TODO: mtl type
                 
                 # Edge
@@ -95,32 +94,16 @@ class rulebook(ABC):
                     edge_info = line.split(' ')
                     src = int(edge_info[0])
                     dst = int(edge_info[1])
-                    self.priority_graph.add_edge(src, dst)
-                    print(f'Add edge from {src} to {dst}')
+                    priority_graph.add_edge(src, dst)
+                    if self.verbosity >= 2:
+                        print(f'Add edge from {src} to {dst}')
 
                 # TODO: process the graph, e.g., merge the same level nodes
-
-                # Graph update
-                if update_section:
-                    graph_update = line.split(' ')
-                    #TODO: update the graph
-        
+                
+        self.priority_graphs[graph_id] = priority_graph
 
     def evaluate(self, traj):
-        # TODO:
-        # 1. Use rule.evaluate() to evaluate the result of each rule
-        # 2. Use update_graph() to update the structure of priority_graph
-        # Return a vector of vectors
-        rho = np.ones(len(self.priority_graph.nodes))
-        idx = 0
-        for id in self.priority_graph.nodes:
-            rule = self.priority_graph.nodes[id]['rule']
-            if self.priority_graph.nodes[id]['active']:
-                rho[idx] = rule.evaluate(traj)
-            else:
-                rho[idx] = 1
-            idx += 1
-        return rho
+        raise NotImplementedError('evaluate() is not implemented')
 
     def update_graph(self):
         pass
@@ -138,5 +121,7 @@ class rule(specification_monitor):
                     mtl_spec = (mtl_spec & sp)
             super().__init__(mtl_spec)
     
-    def evaluate(self, traj):
-        return self.specification(traj)
+    def evaluate(self, traj, start_idx=0, end_idx=None):
+        if end_idx is None:
+            end_idx = len(traj.result.trajectory)
+        return self.specification(traj, start_idx, end_idx)

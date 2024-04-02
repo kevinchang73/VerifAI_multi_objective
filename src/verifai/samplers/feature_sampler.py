@@ -21,6 +21,7 @@ from verifai.samplers.bayesian_optimization import BayesOptSampler
 from verifai.samplers.simulated_annealing import SimulatedAnnealingSampler
 from verifai.samplers.grid_sampler import GridSampler
 from verifai.samplers.extended_multi_armed_bandit import ExtendedMultiArmedBanditSampler
+from verifai.samplers.dynamic_emab import DynamicExtendedMultiArmedBanditSampler
 
 ### Samplers defined over FeatureSpaces
 
@@ -115,6 +116,21 @@ class FeatureSampler:
             lambda domain: ExtendedMultiArmedBanditSampler(domain=domain,
                                                    emab_params=emab_params))
     
+    @staticmethod
+    def dynamicExtendedMultiArmedBanditSamplerFor(space, demab_params=None):
+        """Creates a dynamic extended multi-armed bandit sampler for a given space.
+
+        Uses random sampling for lengths of feature lists and any Domains
+        that are not standardizable.
+        """
+        print('(feature_sampler.py) Using demab sampler')
+        if demab_params is None:
+            demab_params = default_sampler_params('demab')
+        print('(feature_sampler.py) demab_params =', demab_params)
+        return LateFeatureSampler(space, RandomSampler,
+            lambda domain: DynamicExtendedMultiArmedBanditSampler(domain=domain,
+                                                                  demab_params=demab_params))
+
     @staticmethod
     def gridSamplerFor(space, grid_params=None):
         """Creates a grid sampler for a given space.
@@ -276,7 +292,7 @@ def makeRandomSampler(domain):
 def default_sampler_params(sampler_type):
     if sampler_type == 'halton':
         return DotMap(sample_index=0, bases_skipped=0)
-    elif sampler_type in ('ce', 'eg', 'mab', 'emab'):
+    elif sampler_type in ('ce', 'eg', 'mab', 'emab', 'demab'):
         cont = DotMap(buckets=5, dist=None)
         disc = DotMap(dist=None)
         return DotMap(alpha=0.9, thres=0.0, cont=cont, disc=disc)
