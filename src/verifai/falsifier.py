@@ -55,7 +55,7 @@ class falsifier(ABC):
         self.sampler_params = params.sampler_params
         self.verbosity = params.verbosity
 
-        server_params = DotMap(init=True)
+        server_params = DotMap(init=True, dynamic=self.dynamic)
         if server_options is not None:
             server_params.update(server_options)
         if server_params.init:
