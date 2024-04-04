@@ -18,11 +18,15 @@ class rulebook(ABC):
     priority_graphs = {}
     verbosity = 1
     
-    def __init__(self, graph_path, rule_file):
+    def __init__(self, graph_path, rule_file, single_graph=False):
         print('(rulebook.py) Parsing rules...')
         self._parse_rules(rule_file)
         print('(rulebook.py) Parsing rulebook...')
-        self._parse_rulebooks(graph_path)
+        if single_graph:
+            self._parse_rulebook(graph_path)
+        else:
+            self._parse_rulebooks(graph_path)
+        self.single_graph = single_graph
 
     def _parse_rules(self, file_path):
         # Parse the input rules (*_spec.py)

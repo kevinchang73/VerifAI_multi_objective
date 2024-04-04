@@ -5,8 +5,8 @@ from verifai.rulebook import rulebook
 class rulebook_multi02(rulebook):
     iteration = 0
 
-    def __init__(self, graph_path, rule_file, save_path=None):
-        super().__init__(graph_path, rule_file)
+    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False):
+        super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
     
     def evaluate_segment(self, traj, graph_idx=0, start_idx=0, end_idx=None):
@@ -50,6 +50,7 @@ class rulebook_multi02(rulebook):
             if ego_is_in_init_lane[i][1] == 0:
                 switch_idx = i
                 break
+        assert switch_idx > start_idx, "Switching point should be larger than starting point"
 
         # Write trajectory to file for visualization
         if self.save_path is not None:
@@ -68,7 +69,12 @@ class rulebook_multi02(rulebook):
             self.iteration += 1
         
         # Evaluation
-        rho0 = self.evaluate_segment(traj, 0, 0, switch_idx)
+        if self.single_graph:
+            rho0 = self.evaluate_segment(traj, 0, start_idx, switch_idx)
+            rho1 = self.evaluate_segment(traj, 0, switch_idx, len(traj.result.trajectory))
+            print('Actual rho:', rho0, rho1)           
+            rho = self.evaluate_segment(traj, 0, start_idx, len(traj.result.trajectory))
+            return np.array([rho])
+        rho0 = self.evaluate_segment(traj, 0, start_idx, switch_idx)
         rho1 = self.evaluate_segment(traj, 1, switch_idx, len(traj.result.trajectory))
-        print('Evaluation result:', np.array([rho0, rho1]))
         return np.array([rho0, rho1])

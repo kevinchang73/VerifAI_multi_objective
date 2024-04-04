@@ -29,11 +29,12 @@ if __name__ == '__main__':
     parser.add_argument('--headless', action='store_true')
     parser.add_argument('--n-iters', '-n', type=int, default=None, help='Number of simulations to run')
     parser.add_argument('--max-time', type=int, default=None, help='Maximum amount of time to run simulations')
+    parser.add_argument('--single-graph', action='store_true', help='Only a unified priority graph')
     args = parser.parse_args()
     if args.n_iters is None and args.max_time is None:
         raise ValueError('At least one of --n-iters or --max-time must be set')
     
-    rb = rulebook_multi02(args.graph_path, args.rule_path, save_path=args.output_dir)
+    rb = rulebook_multi02(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph)
     run_experiments(args.scenic_path, rulebook=rb,
     parallel=args.parallel, model=args.model,
     sampler_type=args.sampler_type, headless=args.headless,

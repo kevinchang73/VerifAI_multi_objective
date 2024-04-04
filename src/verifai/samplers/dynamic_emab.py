@@ -73,7 +73,7 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
         self.sampler_idx += 1
 
 class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
-    verbosity = 1
+    verbosity = 2
 
     def __init__(self, domain, alpha, thres,
                  buckets=10, dist=None, restart_every=100):
