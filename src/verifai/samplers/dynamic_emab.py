@@ -211,10 +211,10 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
                 ranking_count[rank] = 1
             else:
                 ranking_count[rank] += 1
-        count = len(level.values()) - 1
-        for key, value in ranking_count.items():
+        count = 0
+        for key, value in reversed(ranking_count.items()):
             ranking_map[key] = count
-            count -= value
+            count += value
         
         self.error_weight = {} #node_id -> weight
         for node in level:
