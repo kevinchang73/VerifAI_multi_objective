@@ -4,5 +4,5 @@
 1 on rule1 monitor
 2 on rule2 monitor
 # Edge list
-1 0
-2 0
+0 2
+2 1
