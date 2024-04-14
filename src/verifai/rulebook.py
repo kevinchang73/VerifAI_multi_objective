@@ -106,6 +106,22 @@ class rulebook(ABC):
                 
         self.priority_graphs[graph_id] = priority_graph
 
+    def evaluate_segment(self, traj, graph_idx=0, indices=None):
+        # Evaluate the result of each rule on the segment traj[indices] of the trajectory
+        priority_graph = self.priority_graphs[graph_idx]
+        rho = np.ones(len(priority_graph.nodes))
+        idx = 0
+        for id in sorted(priority_graph.nodes):
+            if self.verbosity >= 2:
+                print('Evaluating rule', id)
+            rule = priority_graph.nodes[id]['rule']
+            if priority_graph.nodes[id]['active']:
+                rho[idx] = rule.evaluate(traj, indices)
+            else:
+                rho[idx] = 1
+            idx += 1
+        return rho
+
     def evaluate(self, traj):
         raise NotImplementedError('evaluate() is not implemented')
 
@@ -125,7 +141,5 @@ class rule(specification_monitor):
                     mtl_spec = (mtl_spec & sp)
             super().__init__(mtl_spec)
     
-    def evaluate(self, traj, start_idx=0, end_idx=None):
-        if end_idx is None:
-            end_idx = len(traj.result.trajectory)
-        return self.specification(traj, start_idx, end_idx)
+    def evaluate(self, traj, indices=None):
+        return self.specification(traj, indices)

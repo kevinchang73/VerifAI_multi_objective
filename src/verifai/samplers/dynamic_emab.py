@@ -40,6 +40,7 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
                                                                 RandomSampler)
             for subsampler in self.split_samplers[id].samplers:
                 if isinstance(subsampler, ContinuousDynamicEMABSampler):
+                    print('(dynamic_emab.py) Set priority graph', id)
                     subsampler.set_graph(priority_graph)
                     subsampler.compute_error_weight()
                 elif isinstance(subsampler, DiscreteDynamicEMABSampler):
@@ -218,7 +219,10 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
         
         self.error_weight = {} #node_id -> weight
         for node in level:
-            self.error_weight[node] = ranking_map[level[node]]
+            if self.priority_graph.nodes[node]['active']:
+                self.error_weight[node] = ranking_map[level[node]]
+            else:
+                self.error_weight[node] = -1
         for key, value in sorted(self.error_weight.items()):
             if self.verbosity >= 2:
                 print(f"Node {key}: {value}")

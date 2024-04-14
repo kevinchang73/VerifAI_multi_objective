@@ -165,7 +165,6 @@ class BoxSampler(DomainSampler):
         pass
 
     def set_graph(self, graph):
-        print('(domain_sampler.py) Set priority graph')
         print('(domain_sampler.py) graph =', graph)
         self.priority_graph = graph
         if graph is not None:
