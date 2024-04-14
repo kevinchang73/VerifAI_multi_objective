@@ -8,24 +8,6 @@ class rulebook_multi02(rulebook):
     def __init__(self, graph_path, rule_file, save_path=None, single_graph=False):
         super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
-    
-    def evaluate_segment(self, traj, graph_idx=0, start_idx=0, end_idx=None):
-        # Evaluate the result of each rule on the segment (start_idx, end_idx) of the trajectory
-        if end_idx is None:
-            end_idx = len(traj.result.trajectory)
-        priority_graph = self.priority_graphs[graph_idx]
-        rho = np.ones(len(priority_graph.nodes))
-        idx = 0
-        for id in sorted(priority_graph.nodes):
-            if self.verbosity >= 2:
-                print('Evaluating rule', id)
-            rule = priority_graph.nodes[id]['rule']
-            if priority_graph.nodes[id]['active']:
-                rho[idx] = rule.evaluate(traj, start_idx, end_idx)
-            else:
-                rho[idx] = 1
-            idx += 1
-        return rho
 
     def evaluate(self, traj):
         # Extract trajectory information
@@ -69,12 +51,15 @@ class rulebook_multi02(rulebook):
             self.iteration += 1
         
         # Evaluation
+        indices_0 = np.arange(start_idx, switch_idx)
+        indices_1 = np.arange(switch_idx, len(traj.result.trajectory))
+        print('Indices:', indices_0, indices_1)
         if self.single_graph:
-            rho0 = self.evaluate_segment(traj, 0, start_idx, switch_idx)
-            rho1 = self.evaluate_segment(traj, 0, switch_idx, len(traj.result.trajectory))
+            rho0 = self.evaluate_segment(traj, 0, indices_0)
+            rho1 = self.evaluate_segment(traj, 0, indices_1)
             print('Actual rho:', rho0, rho1)           
-            rho = self.evaluate_segment(traj, 0, start_idx, len(traj.result.trajectory))
+            rho = self.evaluate_segment(traj, 0, np.arange(0, len(traj.result.trajectory)))
             return np.array([rho])
-        rho0 = self.evaluate_segment(traj, 0, start_idx, switch_idx)
-        rho1 = self.evaluate_segment(traj, 1, switch_idx, len(traj.result.trajectory))
+        rho0 = self.evaluate_segment(traj, 0, indices_0)
+        rho1 = self.evaluate_segment(traj, 1, indices_1)
         return np.array([rho0, rho1])

@@ -7,8 +7,8 @@ infile = open(sys.argv[1], 'r') # *.txt
 mode = sys.argv[2] # multi / single
 order = sys.argv[3] # alternate / sequential
 
-result_count_0 = np.zeros(shape=(2,4), dtype=int) # result_count[i] = [count of 00, 01, 10, 11 in segment 0] sampled from segment i
-result_count_1 = np.zeros(shape=(2,4), dtype=int) # result_count[i] = [count of 00, 01, 10, 11 in segment 1] sampled from segment i
+result_count_0 = np.zeros(shape=(2,4), dtype=int) # result_count_0[i] = [count of 00, 01, 10, 11 in segment 0] sampled from sampler i
+result_count_1 = np.zeros(shape=(2,4), dtype=int) # result_count_1[i] = [count of 00, 01, 10, 11 in segment 1] sampled from sampler i
 curr_source = 0
 lines = infile.readlines()
 infile.close()
