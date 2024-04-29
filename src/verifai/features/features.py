@@ -727,7 +727,7 @@ class Struct(Domain):
         self.namedDomains = tuple(sorted(domains.items(), key=lambda i: i[0]))
         self.domainNamed = OrderedDict(self.namedDomains)
         self.domains = tuple(self.domainNamed.values())
-        self.makePoint = namedtuple('StructPoint', self.domainNamed.keys())
+        self.makePoint = namedtuple('StructPoint', self.domainNamed.keys(), rename=True)
 
     def uniformPoint(self):
         return self.makePoint(*(d.uniformPoint() for d in self.domains))
