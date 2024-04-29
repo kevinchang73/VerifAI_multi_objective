@@ -3,6 +3,7 @@ from verifai.rulebook import rulebook
 
 class rulebook_multi_hri(rulebook):
     iteration = 0
+
     def __init__(self, graph_path, rule_file, save_path=None, single_graph=False):
         super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
@@ -12,6 +13,7 @@ class rulebook_multi_hri(rulebook):
         ee_dist = np.array(traj.result.records['ee_dist'])
         box_dist = np.array(traj.result.records['box_dist'])
         spot_hold = np.array(traj.result.records['spot_hold'])
+        human_in_pos = np.array([traj.result.records['human_in_pos']])
         
         start_idx = -1
 
@@ -22,8 +24,8 @@ class rulebook_multi_hri(rulebook):
 
         assert start_idx != -1, "Starting point not found"
         switch_idx = len(spot_hold)
-        for i in range(start_idx, len(spot_hold))):
-            if type(spot_hold[i]) == bool and spot_hold[i] == True:
+        for i in range(start_idx, len(human_in_pos)):
+            if type(human_in_pos[i]) == bool and human_in_pos[i] == True:
                 switch_idx = i
 
         assert switch_idx > start_idx, "Switching point should be larger than starting point"
@@ -65,7 +67,3 @@ class rulebook_multi_hri(rulebook):
         rho0 = self.evaluate_segment(traj, 0, indices_0)
         rho1 = self.evaluate_segment(traj, 1, indices_1)
         return np.array([rho0, rho1])
-        # bot_dist = np.array(traj.result.records['bot_dist'])
-        # ee_dist = np.array(traj.result.records['ee_dist'])
-        # box_dist = np.array(traj.result.records['box_dist'])
-        # spot_hold = np.array(traj.result.records['spot_hold'])

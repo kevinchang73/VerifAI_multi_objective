@@ -107,9 +107,17 @@ hand_x_purturb = Range(-0.1, 0.1)
 hand_y_purturb = Range(-0.1, 0.1)
 hand_z_purturb = Range(0, 0.1)
 
-ego = new Female_0 at (-0.5, -4.8, 0), with yaw -90 deg,
-                                with behavior ReachHandAndWalk((-4.5, -3.0, 0), (-0.5, -0.5, 0.5))
 
+# ego = new Female_0 at (-0.5, -4.8, 0), with yaw -90 deg,
+                                # with behavior ReachHandAndWalk((-4.5, -3.0, 0), (-0.5, -0.5, 0.5))
+
+ego_dest_x = Range(-4.5, -4.0)
+# ego_dest_y = Range(-3.0, -2.0)
+ego_dest_y = -3.0
+# ego = new Female_0 at (Range(-0.5, 0.5), -4.8, 0), with yaw -90 deg,
+                                # with behavior ReachHandAndWalk((-4.5, -3.0, 0), (-0.5, -0.5, 0.5))
+ego = new Female_0 at (Range(-0.5, 0.5), -4.8, 0), with yaw -90 deg,
+                                with behavior ReachHandAndWalk((ego_dest_x, ego_dest_y, 0), (-0.5, -0.5, 0.5))
 # bed = RectangularRegion((0.3, -6.0, 0.63), 0, 1.0, 1.0) # final defined bed width
 
 box_region = RectangularRegion((0.12, -5.5, 0.61), 0, 0.2, 0.2)
