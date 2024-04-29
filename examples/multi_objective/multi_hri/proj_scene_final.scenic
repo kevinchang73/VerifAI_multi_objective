@@ -50,11 +50,15 @@ behavior NavToHuman():
 
 behavior GrabAndNav():
     do SpotPickUp()
-    for _ in range(50):
-        wait
-    do NavToHuman()
-    do SpotHandOver()
-    terminate
+    # for _ in range(50):
+        # wait
+    try:
+        while True:
+            wait
+    interrupt when ego._in_position:
+        do NavToHuman()
+        do SpotHandOver()
+        terminate
 
 behavior MoveToJointAngles(joint_angles, steps=50):
     start_pos = np.array(self._articulated_agent.arm_joint_pos)
@@ -81,6 +85,7 @@ behavior ReachHandAndWalk(walk_position, reach_position):
         walk_z = walk_position[2]
 
         do HumanNav(x=walk_x, y=walk_y, z=walk_z)
+        self._in_position = True
         # terminate
         while True:
             wait
@@ -117,3 +122,4 @@ record distance from spot to fetch as bot_dist
 record (ego.ee_pos - spot.ee_pos).norm as ee_dist
 record (spot.ee_pos - box.position).norm as box_dist
 record spot._holding_object as spot_hold
+record ego._in_position as human_in_pos
