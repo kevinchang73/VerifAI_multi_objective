@@ -7,7 +7,7 @@ random.seed(0)
 np.random.seed(0)
 
 from multi import *
-from multi_hri_rulebook import rulebook_multiHRI
+from multi_hri_rulebook import rulebook_multi_hri
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     if args.n_iters is None and args.max_time is None:
         raise ValueError('At least one of --n-iters or --max-time must be set')
     
-    rb = rulebook_multiHRI(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph)
+    rb = rulebook_multi_hri(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph)
     run_experiments(args.scenic_path, rulebook=rb,
     parallel=args.parallel, model=args.model,
     sampler_type=args.sampler_type, headless=args.headless,

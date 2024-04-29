@@ -116,4 +116,4 @@ fetch = new FetchRobot at (-3.7, Range(-2.5, -5.0), 0), with yaw 90 deg, with be
 record distance from spot to fetch as bot_dist
 record (ego.ee_pos - spot.ee_pos).norm as ee_dist
 record (spot.ee_pos - box.position).norm as box_dist
-
+record spot._holding_object as spot_hold
