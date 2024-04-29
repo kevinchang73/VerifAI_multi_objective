@@ -60,6 +60,7 @@ class rulebook_multi02(rulebook):
             print('Actual rho:', rho0, rho1)           
             rho = self.evaluate_segment(traj, 0, np.arange(0, len(traj.result.trajectory)))
             return np.array([rho])
+
         rho0 = self.evaluate_segment(traj, 0, indices_0)
         rho1 = self.evaluate_segment(traj, 1, indices_1)
         return np.array([rho0, rho1])

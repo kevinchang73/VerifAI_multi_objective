@@ -8,7 +8,7 @@ def rule0(simulation, indices):
     if indices.size == 0:
         return 1
 
-    desired_bot_dist = 0.5
+    desired_bot_dist = 1.0
 
     bot_dist = np.array(simulation.result.records['bot_dist'])[:, 1][indices]
     rho = np.min(0, np.min(bot_dist) - desired_bot_dist)
@@ -23,9 +23,10 @@ def rule1(simulation, indices):
     if indices.size == 0:
         return 1
 
-    desired_dist = 0.2
+    desired_dist = 0.3
 
     dist = np.array(simulation.result.records['ee_dist'])[:, 1][indices]
+    print(dist)
     rho = np.min(dist) - desired_dist
     return rho
 

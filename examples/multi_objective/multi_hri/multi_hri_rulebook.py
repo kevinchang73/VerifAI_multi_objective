@@ -27,7 +27,7 @@ class rulebook_multi_hri(rulebook):
         for i in range(start_idx, len(human_in_pos)):
             if type(human_in_pos[i]) == bool and human_in_pos[i] == True:
                 switch_idx = i
-
+        print(f"SWITCH_IDX: {switch_idx}\nRUNNING LEN: {len(spot_hold)}")
         assert switch_idx > start_idx, "Switching point should be larger than starting point"
         
         if self.save_path is not None:
@@ -54,8 +54,8 @@ class rulebook_multi_hri(rulebook):
             self.iteration += 1
 
 
-        indices_0 = np.arange(start_idx, swwitch_idx)
-        indices_1 = np.arange(switch_index, len(spot_hold))
+        indices_0 = np.arange(start_idx, switch_idx)
+        indices_1 = np.arange(switch_idx, len(spot_hold))
         print(f"Indices: {indices_0}, {indices_1}")
         if self.single_graph: 
             rho0 = self.evaluate_segment(traj, 0, indices_0)
