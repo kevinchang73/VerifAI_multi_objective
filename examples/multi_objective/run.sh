@@ -1,4 +1,4 @@
-iteration=20
+iteration=50
 scenario='multi_hri'
 log_file='result.log'
 order=alternate

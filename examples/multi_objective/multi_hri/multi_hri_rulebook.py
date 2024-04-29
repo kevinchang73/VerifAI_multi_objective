@@ -13,7 +13,8 @@ class rulebook_multi_hri(rulebook):
         ee_dist = np.array(traj.result.records['ee_dist'])
         box_dist = np.array(traj.result.records['box_dist'])
         spot_hold = np.array(traj.result.records['spot_hold'])
-        human_in_pos = np.array([traj.result.records['human_in_pos']])
+        # human_in_pos = np.array(traj.result.records['human_in_pos'])
+        human_in_pos = traj.result.records['human_in_pos']
         
         start_idx = -1
 
@@ -25,8 +26,13 @@ class rulebook_multi_hri(rulebook):
         assert start_idx != -1, "Starting point not found"
         switch_idx = len(spot_hold)
         for i in range(start_idx, len(human_in_pos)):
-            if type(human_in_pos[i]) == bool and human_in_pos[i] == True:
+            # if type(human_in_pos[i]) == bool and human_in_pos[i] == True:
+            print(f"HUMAN_IN_POS{human_in_pos}")
+            print(f"HUMAN_IN_POS_ELEMENT{human_in_pos[i][1]}")
+            if human_in_pos[i][1]:
                 switch_idx = i
+                break
+
         print(f"SWITCH_IDX: {switch_idx}\nRUNNING LEN: {len(spot_hold)}")
         assert switch_idx > start_idx, "Switching point should be larger than starting point"
         

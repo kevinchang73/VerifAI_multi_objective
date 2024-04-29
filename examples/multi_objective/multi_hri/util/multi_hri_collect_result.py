@@ -16,6 +16,7 @@ infile.close()
 for i in range(len(lines)):
     if mode == 'multi':
         if 'Rho' in lines[i]:
+            print("GOT RHO!")
             line = lines[i].strip()
             seg1 = line[line.find('[[')+2:line.find(']')].split(' ')
             val1 = []
