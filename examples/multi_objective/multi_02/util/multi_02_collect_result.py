@@ -14,6 +14,10 @@ lines = infile.readlines()
 infile.close()
 
 for i in range(len(lines)):
+    if order == '0':
+        curr_source = 0
+    elif order == '1':
+        curr_source = 1
     if mode == 'multi':
         if 'Rho' in lines[i]:
             line = lines[i].strip()
@@ -32,7 +36,7 @@ for i in range(len(lines)):
                 if s != '':
                     val2.append(float(s) < 0)
             assert len(val2) == 4, 'Invalid length of rho'
-            result_count_1[curr_source][val2[2]*2 + val2[3]] += 1
+            result_count_1[curr_source][val2[3]*2 + val2[2]*1] += 1
 
             if order == 'alternate':
                 curr_source = 1 - curr_source
@@ -53,12 +57,18 @@ for i in range(len(lines)):
                 if s != '':
                     val2.append(float(s) < 0)
             assert len(val2) == 4, 'Invalid length of rho'
-            result_count_1[curr_source][val2[2]*2 + val2[3]] += 1
+            result_count_1[curr_source][val2[3]*2 + val2[2]*1] += 1
             
 rows = ['from sampler 0', 'from sampler 1']
-cols = ['(r0, r1) = 00', '(r0, r1) = 01', '(r0, r1) = 10', '(r0, r1) = 11']
-df = pd.DataFrame(result_count_0, columns=cols, index=rows)
-print('Falsification result in segment 0:\n', df, '\n')
-cols = ['(r2, r3) = 00', '(r2, r3) = 01', '(r2, r3) = 10', '(r2, r3) = 11']
-df = pd.DataFrame(result_count_1, columns=cols, index=rows)
-print('Falsification result in segment 1:\n', df)
+#cols = ['(r0, r1) = 00', '(r0, r1) = 01', '(r0, r1) = 10', '(r0, r1) = 11']
+print('Falsification result in segment 0:')
+print(result_count_0[0][0], result_count_0[0][1], result_count_0[0][2], result_count_0[0][3])
+print(result_count_0[1][0], result_count_0[1][1], result_count_0[1][2], result_count_0[1][3])
+#df = pd.DataFrame(result_count_0, columns=cols, index=rows)
+#print('Falsification result in segment 0:\n', df, '\n')
+#cols = ['(r3, r2) = 00', '(r3, r2) = 01', '(r3, r2) = 10', '(r3, r2) = 11']
+print('Falsification result in segment 1:')
+print(result_count_1[0][0], result_count_1[0][1], result_count_1[0][2], result_count_1[0][3])
+print(result_count_1[1][0], result_count_1[1][1], result_count_1[1][2], result_count_1[1][3])
+#df = pd.DataFrame(result_count_1, columns=cols, index=rows)
+#print('Falsification result in segment 1:\n', df)

@@ -24,15 +24,14 @@ model scenic.domains.driving.model
 
 MODEL = 'vehicle.lincoln.mkz_2017'
 
-param EGO_SPEED = VerifaiRange(7, 10)
+param EGO_SPEED = VerifaiRange(8, 12)
 param EGO_BRAKE = VerifaiRange(0.7, 1.0)
+param ADV_SPEED = VerifaiRange(3, 6)
+param ADV3_SPEED = VerifaiRange(1, 3)
 
 ADV1_DIST = 12
 ADV2_DIST = -6
-ADV3_DIST = ADV1_DIST + 10
-param ADV_SPEED = VerifaiRange(3, 6)
-
-LEAD_SPEED = globalParameters.EGO_SPEED - 4
+ADV3_DIST = 18
 
 BYPASS_DIST = 10
 SAFE_DIST = 10
@@ -73,6 +72,13 @@ behavior Adv2Behavior():
             target_speed=globalParameters.ADV_SPEED)
     do FollowLaneBehavior(target_speed=globalParameters.ADV_SPEED)
 
+behavior Adv3Behavior():
+    fasterLaneSec = self.laneSection.fasterLane
+    do LaneChangeBehavior(
+            laneSectionToSwitch=fasterLaneSec,
+            target_speed=globalParameters.ADV_SPEED)
+    do FollowLaneBehavior(target_speed=globalParameters.ADV3_SPEED)
+
 #################################
 # SPATIAL RELATIONS             #
 #################################
@@ -98,7 +104,7 @@ adv2 = Car following roadDirection for ADV2_DIST,
 
 adv3 = Car following roadDirection for ADV3_DIST,
     with blueprint MODEL,
-    with behavior Adv2Behavior()
+    with behavior Adv3Behavior()
 
 require (distance to intersection) > INIT_DIST
 require (distance from adv1 to intersection) > INIT_DIST
