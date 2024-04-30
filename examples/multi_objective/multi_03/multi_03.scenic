@@ -24,14 +24,14 @@ model scenic.domains.driving.model
 
 MODEL = 'vehicle.lincoln.mkz_2017'
 
-EGO_INIT_DIST = [15, 25] #[20, 25]
 param EGO_SPEED = VerifaiRange(7, 10)
 param EGO_BRAKE = VerifaiRange(0.5, 1.0)
-
-ADV_INIT_DIST = [10, 20] #[10, 15]
 param ADV_SPEED = VerifaiRange(7, 10)
 
-param SAFETY_DIST = VerifaiRange(10, 20) #15
+EGO_INIT_DIST = [15, 25] #[20, 25]
+ADV_INIT_DIST = [10, 20] #[10, 15]
+
+param SAFETY_DIST = 10 #VerifaiRange(10, 20)
 CRASH_DIST = 5
 TERM_DIST = 50 #70
 
