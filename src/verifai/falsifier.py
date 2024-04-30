@@ -169,6 +169,12 @@ class falsifier(ABC):
                     break
                 if self.verbosity >= 1:
                     print("Sample no: ", i, "\nSample: ", sample, "\nRho: ", rho, "\n")
+                if self.dynamic:
+                    print('RHO')
+                    for rh in rho:
+                        for r in rh:
+                            print(r, end=' ')
+                        print()
                 self.samples[i] = sample
                 server_samples.append(sample)
                 rhos.append(rho)

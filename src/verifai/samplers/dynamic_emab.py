@@ -9,8 +9,6 @@ from verifai.samplers.multi_objective import MultiObjectiveSampler
 from verifai.rulebook import rulebook
 
 class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
-    sampler_idx = 0
-    
     def __init__(self, domain, demab_params):
         print('(dynamic_emab.py) Initializing!!!')
         print('(dynamic_emab.py) demab_params =', demab_params)
@@ -54,10 +52,17 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
             raise ValueError('Priority graph IDs should be in order and start from 0')
         self.num_segs = len(self.split_samplers)
         print('(dynamic_emab.py) num_segs =', self.num_segs)
+        self.sampler_idx = 0
+        self.using_sampler = rulebook.using_sampler # -1: round-robin
+        assert self.using_sampler < self.num_segs
+        print('(dynamic_emab.py) using_sampler =', self.using_sampler)
 
     def getSample(self):
-        # Sample from each segment in a round-robin fashion
-        idx = self.sampler_idx % self.num_segs
+        if self.using_sampler == -1:
+            # Sample from each segment in a round-robin fashion
+            idx = self.sampler_idx % self.num_segs
+        else:
+            idx = self.using_sampler
         return self.split_samplers[idx].getSample()
 
     def update(self, sample, info, rhos):
@@ -68,7 +73,10 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
             for i in range(len(self.split_samplers)):
                 self.split_samplers[i].update(sample, info, rhos)
             return
-        print('(dynamic_emab.py) Getting feedback from segment', self.sampler_idx % self.num_segs)
+        if self.using_sampler == -1:
+            print('(dynamic_emab.py) Getting feedback from segment', self.sampler_idx % self.num_segs)
+        else:
+            print('(dynamic_emab.py) Getting feedback from segment', self.using_sampler)
         for i in range(len(rhos)):
             self.split_samplers[i].update(sample, info, rhos[i])
         self.sampler_idx += 1
@@ -174,17 +182,17 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
         error_value = self._compute_error_value(counter_ex)
         self._update_counterexample(counter_ex)
         for i, b in enumerate(info):
-            self.counts[i][b] += 7.
+            self.counts[i][b] += self.sum_error_weight
             self.counterexamples[counter_ex][i][b] += error_value
         self.errors = self._get_total_counterexamples()
         self.t += 1
         if self.verbosity >= 2:
             print('counterexamples =', self.counterexamples)
-        if self.verbosity >= 1:
+        if self.verbosity >= 2:
             for ce in self.counterexamples:
                 if self._compute_error_value(ce) > 0:
                     print('counterexamples =', ce, ', times =', int(np.sum(self.counterexamples[ce], axis = 1)[0]/self._compute_error_value(ce)))
-        if self.verbosity >= 2:
+        if self.verbosity >= 1:
             proportions = self.errors / self.counts
             print('self.errors[0] =', self.errors[0])
             print('self.counts[0] =', self.counts[0])
@@ -218,9 +226,11 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
             count += value
         
         self.error_weight = {} #node_id -> weight
+        self.sum_error_weight = 0
         for node in level:
             if self.priority_graph.nodes[node]['active']:
                 self.error_weight[node] = ranking_map[level[node]]
+                self.sum_error_weight += 2**self.error_weight[node]
             else:
                 self.error_weight[node] = -1
         for key, value in sorted(self.error_weight.items()):

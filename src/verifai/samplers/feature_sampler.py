@@ -292,7 +292,11 @@ def makeRandomSampler(domain):
 def default_sampler_params(sampler_type):
     if sampler_type == 'halton':
         return DotMap(sample_index=0, bases_skipped=0)
-    elif sampler_type in ('ce', 'eg', 'mab', 'emab', 'demab'):
+    elif sampler_type in ('ce', 'eg', 'mab', 'emab'):
+        cont = DotMap(buckets=5, dist=None)
+        disc = DotMap(dist=None)
+        return DotMap(alpha=0.9, thres=0.0, cont=cont, disc=disc)
+    elif sampler_type == 'demab':
         cont = DotMap(buckets=5, dist=None)
         disc = DotMap(dist=None)
         return DotMap(alpha=0.9, thres=0.0, cont=cont, disc=disc)
