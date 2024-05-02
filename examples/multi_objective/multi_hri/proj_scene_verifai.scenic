@@ -111,7 +111,7 @@ param EGO_DEST_X = VerifaiRange(-4.5, -4.0)
 param EGO_SPAWN_X = VerifaiRange(-0.5, 0.5)
 param FETCH_SPAWN_Y = VerifaiRange(-2.5, -5.0)
 param BOX_X = VerifaiRange(0.12, 0.42) # make the lower bound the original center so it does not fall off of bed
-param BOX_Y = VerifaiRange(-5.8, 5.2) 
+param BOX_Y = VerifaiRange(-5.8, -5.2) 
 
 ego = new Female_0 at (globalParameters.EGO_SPAWN_X, -4.8, 0), with yaw -90 deg,
                                 with behavior ReachHandAndWalk((globalParameters.EGO_DEST_X, -3.0, 0), (-0.5, -0.5, 0.5))

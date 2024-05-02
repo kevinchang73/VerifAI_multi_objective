@@ -1,6 +1,6 @@
 iteration=50
 scenario='multi_hri'
-log_file='result.log'
+log_file='result_new_run.log'
 order=alternate
 
 rm $scenario/outputs/*.txt
