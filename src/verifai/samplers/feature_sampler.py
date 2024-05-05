@@ -22,6 +22,9 @@ from verifai.samplers.simulated_annealing import SimulatedAnnealingSampler
 from verifai.samplers.grid_sampler import GridSampler
 from verifai.samplers.extended_multi_armed_bandit import ExtendedMultiArmedBanditSampler
 from verifai.samplers.dynamic_emab import DynamicExtendedMultiArmedBanditSampler
+from verifai.samplers.dynamic_mab import DynamicMultiArmedBanditSampler
+from verifai.samplers.dynamic_ce import DynamicCrossEntropySampler
+from verifai.samplers.dynamic_unified_emab import DynamicUnifiedExtendedMultiArmedBanditSampler
 
 ### Samplers defined over FeatureSpaces
 
@@ -130,7 +133,52 @@ class FeatureSampler:
         return LateFeatureSampler(space, RandomSampler,
             lambda domain: DynamicExtendedMultiArmedBanditSampler(domain=domain,
                                                                   demab_params=demab_params))
+    
+    @staticmethod
+    def dynamicMultiArmedBanditSamplerFor(space, dmab_params=None):
+        """Creates a dynamic multi-armed bandit sampler for a given space.
 
+        Uses random sampling for lengths of feature lists and any Domains
+        that are not standardizable.
+        """
+        print('(feature_sampler.py) Using dmab sampler')
+        if dmab_params is None:
+            dmab_params = default_sampler_params('dmab')
+        print('(feature_sampler.py) dmab_params =', dmab_params)
+        return LateFeatureSampler(space, RandomSampler,
+            lambda domain: DynamicMultiArmedBanditSampler(domain=domain,
+                                                          dmab_params=dmab_params))
+    
+    @staticmethod
+    def dynamicCrossEntropySamplerFor(space, dce_params=None):
+        """Creates a dynamic cross-entropy sampler for a given space.
+
+        Uses random sampling for lengths of feature lists and any Domains
+        that are not standardizable.
+        """
+        print('(feature_sampler.py) Using dce sampler')
+        if dce_params is None:
+            dce_params = default_sampler_params('dce')
+        print('(feature_sampler.py) dce_params =', dce_params)
+        return LateFeatureSampler(space, RandomSampler,
+            lambda domain: DynamicCrossEntropySampler(domain=domain,
+                                                      dce_params=dce_params))
+
+    @staticmethod
+    def dynamicUnifiedExtendedMultiArmedBanditSamplerFor(space, udemab_params=None):
+        """Creates a dynamic unified extended multi-armed bandit sampler for a given space.
+
+        Uses random sampling for lengths of feature lists and any Domains
+        that are not standardizable.
+        """
+        print('(feature_sampler.py) Using udemab sampler')
+        if udemab_params is None:
+            udemab_params = default_sampler_params('udemab')
+        print('(feature_sampler.py) udemab_params =', udemab_params)
+        return LateFeatureSampler(space, RandomSampler,
+            lambda domain: DynamicUnifiedExtendedMultiArmedBanditSampler(domain=domain,
+                                                                         udemab_params=udemab_params))
+    
     @staticmethod
     def gridSamplerFor(space, grid_params=None):
         """Creates a grid sampler for a given space.
@@ -296,7 +344,7 @@ def default_sampler_params(sampler_type):
         cont = DotMap(buckets=5, dist=None)
         disc = DotMap(dist=None)
         return DotMap(alpha=0.9, thres=0.0, cont=cont, disc=disc)
-    elif sampler_type == 'demab':
+    elif sampler_type in ('demab', 'dmab', 'dce', 'udemab'):
         cont = DotMap(buckets=5, dist=None)
         disc = DotMap(dist=None)
         return DotMap(alpha=0.9, thres=0.0, cont=cont, disc=disc)
