@@ -5,7 +5,7 @@ import pandas as pd
 
 infile = open(sys.argv[1], 'r') # *.txt
 mode = sys.argv[2] # multi / single
-order = sys.argv[3] # alternate / sequential
+order = sys.argv[3] # -1 / 0 / 1
 
 result_count_0 = np.zeros(shape=(2,4), dtype=int) # result_count_0[i] = [count of 00, 01, 10, 11 in segment 0] sampled from sampler i
 result_count_1 = np.zeros(shape=(2,4), dtype=int) # result_count_1[i] = [count of 00, 01, 10, 11 in segment 1] sampled from sampler i
@@ -38,7 +38,7 @@ for i in range(len(lines)):
             assert len(val2) == 4, 'Invalid length of rho'
             result_count_1[curr_source][val2[3]*2 + val2[2]*1] += 1
 
-            if order == 'alternate':
+            if order == '-1':
                 curr_source = 1 - curr_source
     else:
         if 'Actual rho' in lines[i]:
