@@ -31,7 +31,7 @@ param ADV3_SPEED = VerifaiRange(1, 3)
 
 ADV1_DIST = 12
 ADV2_DIST = -6
-ADV3_DIST = 18
+ADV3_DIST = 5 #18
 
 BYPASS_DIST = 10
 SAFE_DIST = 10
@@ -102,9 +102,13 @@ adv2 = Car following roadDirection for ADV2_DIST,
     with blueprint MODEL,
     with behavior Adv2Behavior()
 
-adv3 = Car following roadDirection for ADV3_DIST,
+adv3 = Car left of adv1 by ADV3_DIST,
     with blueprint MODEL,
-    with behavior Adv3Behavior()
+    with behavior Adv1Behavior()
+
+#adv3 = Car following roadDirection for ADV3_DIST,
+#    with blueprint MODEL,
+#    with behavior Adv3Behavior()
 
 require (distance to intersection) > INIT_DIST
 require (distance from adv1 to intersection) > INIT_DIST

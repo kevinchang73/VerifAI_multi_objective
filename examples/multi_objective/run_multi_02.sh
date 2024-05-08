@@ -1,4 +1,4 @@
-iteration=300
+iteration=3
 scenario='multi_02'
 log_file="result_${scenario}.log"
 result_file="result_${scenario}.txt"
@@ -6,14 +6,14 @@ csv_file="result_${scenario}"
 sampler_idx=0 # 0 / 1 / -1 (-1 is for alternate)
 sampler_type=demab # demab / dmab / random / dce / halton / udemab
 simulator=scenic.simulators.newtonian.driving_model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
-to_plot=False # True / False
+to_plot=True # True / False
 
 rm $scenario/outputs/*traj*.txt
 rm $scenario/outputs/*traj*.png
 rm $scenario/outputs/$result_file
 rm $scenario/outputs/$csv_file.csv
 rm $scenario/outputs/$csv_file\_scatter.png
-for seed in $(seq 0 2);
+for seed in $(seq 0 0);
 do
     if [[ $to_plot == 'True' ]]; then
         python $scenario/$scenario.py -n $iteration --headless -e $csv_file -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs -o $scenario/outputs > $scenario/outputs/$log_file
