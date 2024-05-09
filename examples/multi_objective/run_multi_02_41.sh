@@ -1,10 +1,10 @@
 iteration=300
 scenario='multi_02'
-log_file="result_${scenario}_demab0.log"
-result_file="result_${scenario}_demab0.txt"
-csv_file="result_${scenario}_demab0"
-sampler_idx=0 # 0 / 1 / -1 (-1 is for alternate)
-sampler_type=demab # demab / dmab / random / dce / halton / udemab
+log_file="result_${scenario}_dce1.log"
+result_file="result_${scenario}_dce1.txt"
+csv_file="result_${scenario}_dce1"
+sampler_idx=1 # 0 / 1 / -1 (-1 is for alternate)
+sampler_type=dce # demab / dmab / random / dce / halton / udemab
 simulator=scenic.simulators.newtonian.driving_model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
 to_plot=False # True / False
 
