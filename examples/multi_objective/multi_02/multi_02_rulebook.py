@@ -5,7 +5,8 @@ from verifai.rulebook import rulebook
 class rulebook_multi02(rulebook):
     iteration = 0
 
-    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False):
+    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1):
+        rulebook.using_sampler = using_sampler
         super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
 
@@ -53,7 +54,6 @@ class rulebook_multi02(rulebook):
         # Evaluation
         indices_0 = np.arange(start_idx, switch_idx)
         indices_1 = np.arange(switch_idx, len(traj.result.trajectory))
-        print('Indices:', indices_0, indices_1)
         if self.single_graph:
             rho0 = self.evaluate_segment(traj, 0, indices_0)
             rho1 = self.evaluate_segment(traj, 0, indices_1)

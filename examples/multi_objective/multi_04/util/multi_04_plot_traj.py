@@ -6,7 +6,6 @@ freq = 10
 f = open(sys.argv[1], 'r')
 lines = f.readlines()
 
-inter_center = []
 road_x = []
 road_y = []
 ego_pos_x =[]
@@ -17,11 +16,13 @@ v2_pos_x = []
 v2_pos_y = []
 v3_pos_x = []
 v3_pos_y = []
+v4_pos_x = []
+v4_pos_y = []
+ped_pos_x = []
+ped_pos_y = []
 
-inter_center.append(float(lines[0].split(' ')[0]))
-inter_center.append(float(lines[0].split(' ')[1]))
-cur_line = 2
-num_coords = int(lines[1])
+cur_line = 1
+num_coords = int(lines[0])
 
 # intersection
 for i in range(cur_line, cur_line+num_coords):
@@ -78,23 +79,36 @@ for i in range(cur_line, len(lines)-1):
     v2_pos_y.append(float(lines[i].split(' ')[5]))
     v3_pos_x.append(float(lines[i].split(' ')[6]))
     v3_pos_y.append(float(lines[i].split(' ')[7]))
+    v4_pos_x.append(float(lines[i].split(' ')[8]))
+    v4_pos_y.append(float(lines[i].split(' ')[9]))
+    ped_pos_x.append(float(lines[i].split(' ')[10]))
+    ped_pos_y.append(float(lines[i].split(' ')[11]))
 
 plt.plot(ego_pos_x, ego_pos_y, '-bo', markersize=3)
 plt.plot(v1_pos_x, v1_pos_y, '-go', markersize=3)
 plt.plot(v2_pos_x, v2_pos_y, '-yo', markersize=3)
 plt.plot(v3_pos_x, v3_pos_y, '-co', markersize=3)
+plt.plot(v4_pos_x, v4_pos_y, '-mo', markersize=3)
+filtered_ped_pos_x = []
+filtered_ped_pos_y = []
+for i in range(len(ego_pos_x)):
+    if ped_pos_x[i] != 0 or ped_pos_y[i] != 0:
+        filtered_ped_pos_x.append(ped_pos_x[i])
+        filtered_ped_pos_y.append(ped_pos_y[i])
+plt.plot(filtered_ped_pos_x, filtered_ped_pos_y, '-ko', markersize=3)
 plt.plot(ego_pos_x[0], ego_pos_y[0], 'ro', label='_nolegend_', markersize=3)
 plt.plot(v1_pos_x[0], v1_pos_y[0], 'ro', label='_nolegend_', markersize=3)
 plt.plot(v2_pos_x[0], v2_pos_y[0], 'ro', label='_nolegend_', markersize=3)
 plt.plot(v3_pos_x[0], v3_pos_y[0], 'ro', label='_nolegend_', markersize=3)
-plt.plot(inter_center[0], inter_center[1], 'ro', label='_nolegend_', markersize=3)
+plt.plot(v4_pos_x[0], v4_pos_y[0], 'ro', label='_nolegend_', markersize=3)
+plt.plot(ped_pos_x[0], ped_pos_y[0], 'ro', label='_nolegend_', markersize=3)
 plt.title('Trajectory')
 plt.xlabel('x')
 plt.ylabel('y')
-plt.legend(['ego', 'v1', 'v2', 'v3'], loc='lower right')
+plt.legend(['ego', 'v1', 'v2', 'v3', 'v4', 'ped'], loc='lower right')
 plt.grid(True)
-plt.xlim(inter_center[0]-50, inter_center[0]+50)
-plt.ylim(inter_center[1]-50, inter_center[1]+50)
+#plt.xlim(ego_pos_x[0]-50, ego_pos_x[0]+100)
+#plt.ylim(ego_pos_y[0]-30, ego_pos_y[0]+50)
 #plt.show()
 plt.savefig(sys.argv[1].split('.')[0]+'.png')
 f.close()

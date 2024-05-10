@@ -40,7 +40,7 @@ Runs all experiments in a directory.
 """
 def run_experiments(path, rulebook=None, parallel=False, model=None,
                    sampler_type=None, headless=False, num_workers=5, output_dir='outputs',
-                   experiment_name=None, max_time=None, n_iters=None):
+                   experiment_name=None, max_time=None, n_iters=None, max_steps=300):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     paths = []
@@ -55,7 +55,7 @@ def run_experiments(path, rulebook=None, parallel=False, model=None,
     for p in paths:
         falsifier = run_experiment(p, rulebook=rulebook, 
         parallel=parallel, model=model, sampler_type=sampler_type, headless=headless,
-        num_workers=num_workers, max_time=max_time, n_iters=n_iters)
+        num_workers=num_workers, max_time=max_time, n_iters=n_iters, max_steps=max_steps)
         df = pd.concat([falsifier.error_table.table, falsifier.safe_table.table])
         if experiment_name is not None:
             outfile = experiment_name
@@ -86,7 +86,7 @@ Arguments:
 """
 def run_experiment(scenic_path, rulebook=None, parallel=False, model=None,
                    sampler_type=None, headless=False, num_workers=5, max_time=None,
-                   n_iters=5):
+                   n_iters=5, max_steps=300):
     # Construct rulebook
     rb = rulebook
 
@@ -109,7 +109,7 @@ def run_experiment(scenic_path, rulebook=None, parallel=False, model=None,
         max_time=max_time,
         verbosity=1,
     )
-    server_options = DotMap(maxSteps=300, verbosity=1,
+    server_options = DotMap(maxSteps=max_steps, verbosity=1,
                             scenic_path=scenic_path, scenario_params=params, scenario_model=model,
                             num_workers=num_workers)
     falsifier_class = generic_parallel_falsifier if parallel else generic_falsifier

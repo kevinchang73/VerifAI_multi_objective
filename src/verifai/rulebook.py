@@ -16,6 +16,7 @@ class FunctionVisitor(ast.NodeVisitor):
 
 class rulebook(ABC):
     priority_graphs = {}
+    using_sampler = -1
     verbosity = 1
     
     def __init__(self, graph_path, rule_file, single_graph=False):
@@ -112,11 +113,10 @@ class rulebook(ABC):
         rho = np.ones(len(priority_graph.nodes))
         idx = 0
         for id in sorted(priority_graph.nodes):
-            if self.verbosity >= 2:
-                print('Evaluating rule', id)
             rule = priority_graph.nodes[id]['rule']
             if priority_graph.nodes[id]['active']:
-                # breakpoint()
+                if self.verbosity >= 2:
+                    print('Evaluating rule', id)
                 rho[idx] = rule.evaluate(traj, indices)
             else:
                 rho[idx] = 1

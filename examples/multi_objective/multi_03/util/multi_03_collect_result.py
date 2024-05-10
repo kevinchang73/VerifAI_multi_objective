@@ -15,6 +15,7 @@ curr_source = 0
 lines = infile.readlines()
 infile.close()
 
+idx = 0
 for i in range(len(lines)):
     if mode == 'multi':
         if 'Rho' in lines[i]:
@@ -35,6 +36,8 @@ for i in range(len(lines)):
                     val2.append(float(s) < 0)
             assert len(val2) == 3, 'Invalid length of rho'
             result_count_1[curr_source][val2[0]*4 + val2[1]*2 + val2[2]] += 1
+            #if val2[0]*4 + val2[1]*2 + val2[2] == 7:
+            #    print('Maximal counterexample in B:', idx)
 
             line = lines[i+2].strip()
             seg3 = line[line.find('[')+1:line.find(']')].split(' ')
@@ -56,6 +59,8 @@ for i in range(len(lines)):
             
             if order == 'alternate':
                 curr_source = (curr_source + 1) % 4
+            
+            idx += 1
     else:
         if 'Actual rho' in lines[i]:
             line = lines[i].strip()
@@ -94,6 +99,10 @@ for i in range(len(lines)):
                     val4.append(float(s) < 0)
             assert len(val4) == 3, 'Invalid length of rho'
             result_count_3[curr_source][val4[0]*4 + val4[1]*2 + val4[2]] += 1
+            if val4[0] == 1:
+                print('False-positive counterexample in D:', idx)
+
+            idx += 1
             
 rows = ['from sampler 0', 'from sampler 1', 'from sampler 2', 'from sampler 3']
 cols = ['000', '001', '010', '011', '100', '101', '110', '111']

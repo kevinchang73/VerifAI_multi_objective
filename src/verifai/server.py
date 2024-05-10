@@ -114,6 +114,71 @@ def choose_sampler(sample_space, sampler_type,
         sampler = FeatureSampler.dynamicExtendedMultiArmedBanditSamplerFor(
             sample_space, demab_params=demab_params)
         return 'demab', sampler
+    if sampler_type == 'dmab':
+        print('(server.py) Choosing dmab sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
+        if sampler_params is None:
+            dmab_params = default_sampler_params('dmab')
+        else:
+            dmab_params = default_sampler_params('dmab')
+            if 'cont' in sampler_params:
+                if 'buckets' in sampler_params.cont:
+                    dmab_params.cont.buckets = sampler_params.cont.buckets
+                if 'dist' in sampler_params.cont:
+                    dmab_params.cont.dist = sampler_params.cont.dist
+            if 'dist' in sampler_params.disc:
+                dmab_params.disc.dist = sampler_params.disc.dist
+            if 'alpha' in sampler_params:
+                dmab_params.alpha = sampler_params.alpha
+            if 'thres' in sampler_params:
+                dmab_params.thres = sampler_params.thres
+            if 'priority_graph' in sampler_params:
+                dmab_params.priority_graph = sampler_params.priority_graph
+        sampler = FeatureSampler.dynamicMultiArmedBanditSamplerFor(
+            sample_space, dmab_params=dmab_params)
+        return 'dmab', sampler
+    if sampler_type == 'dce':
+        print('(server.py) Choosing dce sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
+        if sampler_params is None:
+            dce_params = default_sampler_params('dce')
+        else:
+            dce_params = default_sampler_params('dce')
+            if 'cont' in sampler_params:
+                if 'buckets' in sampler_params.cont:
+                    dce_params.cont.buckets = sampler_params.cont.buckets
+                if 'dist' in sampler_params.cont:
+                    dce_params.cont.dist = sampler_params.cont.dist
+            if 'dist' in sampler_params.disc:
+                dce_params.disc.dist = sampler_params.disc.dist
+            if 'alpha' in sampler_params:
+                dce_params.alpha = sampler_params.alpha
+            if 'thres' in sampler_params:
+                dce_params.thres = sampler_params.thres
+        sampler = FeatureSampler.dynamicCrossEntropySamplerFor(
+            sample_space, dce_params=dce_params)
+        return 'dce', sampler
+    if sampler_type == 'udemab':
+        print('(server.py) Choosing udemab sampler')
+        print('(server.py) choose_sampler: sampler_params =', sampler_params)
+        if sampler_params is None:
+            udemab_params = default_sampler_params('udemab')
+        else:
+            udemab_params = default_sampler_params('udemab')
+            if 'cont' in sampler_params:
+                if 'buckets' in sampler_params.cont:
+                    udemab_params.cont.buckets = sampler_params.cont.buckets
+                if 'dist' in sampler_params.cont:
+                    udemab_params.cont.dist = sampler_params.cont.dist
+            if 'dist' in sampler_params.disc:
+                udemab_params.disc.dist = sampler_params.disc.dist
+            if 'alpha' in sampler_params:
+                udemab_params.alpha = sampler_params.alpha
+            if 'thres' in sampler_params:
+                udemab_params.thres = sampler_params.thres
+        sampler = FeatureSampler.dynamicUnifiedExtendedMultiArmedBanditSamplerFor(
+            sample_space, udemab_params=udemab_params)
+        return 'udemab', sampler
     if sampler_type == 'eg':
         if sampler_params is None:
             eg_params = default_sampler_params('eg')
