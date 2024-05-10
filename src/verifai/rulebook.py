@@ -4,7 +4,7 @@ import mtl
 import ast
 import numpy as np
 import os
-
+import pdb
 from verifai.monitor import specification_monitor
 
 class FunctionVisitor(ast.NodeVisitor):
@@ -116,6 +116,7 @@ class rulebook(ABC):
                 print('Evaluating rule', id)
             rule = priority_graph.nodes[id]['rule']
             if priority_graph.nodes[id]['active']:
+                # breakpoint()
                 rho[idx] = rule.evaluate(traj, indices)
             else:
                 rho[idx] = 1
@@ -142,4 +143,5 @@ class rule(specification_monitor):
             super().__init__(mtl_spec)
     
     def evaluate(self, traj, indices=None):
+        # breakpoint()
         return self.specification(traj, indices)

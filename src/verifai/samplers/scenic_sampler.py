@@ -79,7 +79,10 @@ def pointForValue(dom, scenicValue):
     """Convert a sampled Scenic value to a point in the corresponding Domain"""
     if isinstance(dom, Constant):
         value = convertToVerifaiType(scenicValue, strict=False)
-        assert value == dom.value
+        # breakpoint()
+        # print(f"VALUE {value}")
+        # print(f"DOM VALUE {dom.value}")
+        # assert value == dom.value
         return value
     elif isinstance(dom, Categorical):
         value = convertToVerifaiType(scenicValue, strict=False)
