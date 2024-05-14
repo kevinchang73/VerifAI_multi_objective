@@ -24,7 +24,7 @@ for i in range(len(lines)):
                 if s != '':
                     val1.append(float(s) < 0)
             assert len(val1) == 4, 'Invalid length of rho'
-            result_count_0[curr_source][val1[0]*2 + val1[1]*1] += 1
+            result_count_0[curr_source][val1[1]*2 + val1[3]*1] += 1
 
             line = lines[i+1].strip()
             seg2 = line[line.find('[')+1:line.find(']]')].split(' ')
@@ -33,7 +33,7 @@ for i in range(len(lines)):
                 if s != '':
                     val2.append(float(s) < 0)
             assert len(val2) == 4, 'Invalid length of rho'
-            result_count_1[curr_source][val2[2]*2 + val2[3]] += 1
+            result_count_1[curr_source][val2[0]*2 + val2[2]] += 1
 
             if order == 'alternate':
                 curr_source = 1 - curr_source

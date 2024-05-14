@@ -1,11 +1,11 @@
-iteration=300
-scenario='multi_02'
+iteration=30
+scenario='multi_hri'
 log_file="result_${scenario}_demab0.log"
 result_file="result_${scenario}_demab0.txt"
 csv_file="result_${scenario}_demab0"
 sampler_idx=0 # 0 / 1 / -1 (-1 is for alternate)
 sampler_type=demab # demab / dmab / random / dce / halton / udemab
-simulator=scenic.simulators.newtonian.driving_model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
+simulator=scenic.simulators.habitat.model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
 to_plot=False # True / False
 
 rm $scenario/outputs/*traj*.txt
@@ -26,5 +26,5 @@ do
         python $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs >> $scenario/outputs/$log_file
     fi
 done
-python $scenario/util/$scenario\_collect_result.py $scenario/outputs/$log_file multi $sampler_idx >> $scenario/outputs/$result_file
-python $scenario/util/$scenario\_analyze_diversity.py $scenario/outputs/ $csv_file multi >> $scenario/outputs/$result_file
+#python $scenario/util/$scenario\_collect_result.py $scenario/outputs/$log_file multi $sampler_idx >> $scenario/outputs/$result_file
+#python $scenario/util/$scenario\_analyze_diversity.py $scenario/outputs/ $csv_file multi >> $scenario/outputs/$result_file
