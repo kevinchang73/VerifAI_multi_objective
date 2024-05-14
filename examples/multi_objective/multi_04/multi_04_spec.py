@@ -74,6 +74,8 @@ def rule8(simulation, indices): # F: lane keeping
     return rho
 
 def rule9(simulation, indices): # H, 1: reach intersection
+    if indices.size == 0:
+        return 1
     if max(indices) < len(simulation.result.trajectory) - 1:
         return 1
     ego_dist_to_intersection = np.array(simulation.result.records["egoDistToIntersection"])

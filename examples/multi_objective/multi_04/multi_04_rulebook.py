@@ -70,7 +70,16 @@ class rulebook_multi04(rulebook):
             rho0 = self.evaluate_segment(simulation, 0, indices_0)
             rho1 = self.evaluate_segment(simulation, 0, indices_1)
             rho2 = self.evaluate_segment(simulation, 0, indices_2)
-            print('Actual rho:', rho0, rho1, rho2)
+            print('Actual rho:')
+            for r in rho0:
+                print(r, end=' ')
+            print()
+            for r in rho1:
+                print(r, end=' ')
+            print()
+            for r in rho2:
+                print(r, end=' ')
+            print()
             rho = self.evaluate_segment(simulation, 0, np.arange(0, len(simulation.result.trajectory)))
             return np.array([rho])
         rho0 = self.evaluate_segment(simulation, 0, indices_0)
