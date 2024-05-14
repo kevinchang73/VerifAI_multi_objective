@@ -27,7 +27,7 @@ MODEL = 'vehicle.lincoln.mkz_2017'
 param EGO_SPEED = VerifaiRange(8, 12)
 param EGO_BRAKE = VerifaiRange(0.7, 1.0)
 param ADV_SPEED = VerifaiRange(3, 6)
-param ADV3_SPEED = VerifaiRange(1, 3)
+param ADV3_SPEED = VerifaiRange(3, 6) #VerifaiRange(1, 3)
 
 ADV1_DIST = 12
 ADV2_DIST = -6
