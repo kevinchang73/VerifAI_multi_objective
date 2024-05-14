@@ -122,6 +122,17 @@ class rulebook(ABC):
                 rho[idx] = 1
             idx += 1
         return rho
+    
+    def evaluate_rule(self, traj, rule_id, graph_idx=0, indices=None):
+        # Evaluate the result of a rule on the trajectory
+        priority_graph = self.priority_graphs[graph_idx]
+        rule = priority_graph.nodes[rule_id]['rule']
+        rho = 1
+        if priority_graph.nodes[rule_id]['active']:
+            if self.verbosity >= 2:
+                print('Evaluating rule', rule_id)
+            rho = rule.evaluate(traj, indices)
+        return rho
 
     def evaluate(self, traj):
         raise NotImplementedError('evaluate() is not implemented')
