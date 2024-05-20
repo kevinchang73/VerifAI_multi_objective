@@ -1,0 +1,6 @@
+# ID 0
+# Node list
+0 on rule0 monitor
+1 on rule1 monitor
+# Edge list
+1 0
