@@ -79,7 +79,7 @@ def rule9(simulation, indices): # H, 1: reach intersection
     if max(indices) < len(simulation.result.trajectory) - 1:
         return 1
     ego_dist_to_intersection = np.array(simulation.result.records["egoDistToIntersection"])
-    rho = -np.max(ego_dist_to_intersection[indices], axis=0)[1]
+    rho = -np.min(ego_dist_to_intersection[indices], axis=0)[1]
     return rho
 
 def rule10(simulation, indices): # H, 2: finish right-turn
@@ -88,5 +88,5 @@ def rule10(simulation, indices): # H, 2: finish right-turn
     if max(indices) < len(simulation.result.trajectory) - 1:
         return 1
     ego_dist_to_end_lane = np.array(simulation.result.records["egoDistToEgoEndLane"])
-    rho = -np.max(ego_dist_to_end_lane[indices], axis=0)[1]
+    rho = -np.min(ego_dist_to_end_lane[indices], axis=0)[1]
     return rho
