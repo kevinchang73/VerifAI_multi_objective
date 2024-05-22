@@ -1,6 +1,8 @@
 
 """Interface to Scenic."""
 
+import importlib.metadata
+
 import scenic
 from scenic.core.distributions import needsSampling, Options
 from scenic.core.vectors import Vector
@@ -17,8 +19,16 @@ from verifai.features import (Constant, Categorical, Real, Box, Array, Struct,
 from verifai.samplers.feature_sampler import FeatureSampler
 from verifai.utils.frozendict import frozendict
 
+scenicMajorVersion = int(importlib.metadata.version('scenic').split('.')[0])
+if scenicMajorVersion >= 3:
+    from scenic.core.vectors import Orientation
+else:
+    Orientation = None
+
 scalarDomain = Real()
-vectorDomain = Array(scalarDomain, (2,))
+vectorDim = 2 if scenicMajorVersion < 3 else 3
+vectorDomain = Array(scalarDomain, (vectorDim,))
+orientationDomain = Array(scalarDomain, (4,))  # as quaternions
 gtaModelDomain = Categorical(*GTACarModel.models.values())
 webotsModelDomain = Categorical(*webotsCarModels)
 colorDomain = Box((0, 1), (0, 1), (0, 1))
@@ -40,6 +50,8 @@ def convertToVerifaiType(value, strict=True):
         return value
     elif canCoerceType(ty, Vector):
         return tuple(coerce(value, Vector))
+    elif Orientation and isinstance(value, Orientation):
+        return tuple(value.getRotation().as_quat())
     elif strict:    # Unknown type, so give up if we're being strict
         raise RuntimeError(
             f'attempted to convert Scenic value {value} of unknown type {ty}')
@@ -59,6 +71,8 @@ def domainForValue(value):
         domain = colorDomain
     elif canCoerceType(ty, Vector):
         domain = vectorDomain
+    elif ty is Orientation:
+        domain = orientationDomain
     elif ty is str:
         # We can only handle strings when they come from a finite set of
         # possibilities; we heuristically detect that here.
@@ -92,6 +106,8 @@ def pointForValue(dom, scenicValue):
         return coerce(scenicValue, float)
     elif dom == vectorDomain:
         return tuple(coerce(scenicValue, Vector))
+    elif dom == orientationDomain:
+        return tuple(scenicValue.getRotation().as_quat())
     elif dom == colorDomain:
         assert isinstance(scenicValue, (tuple, list))
         assert len(scenicValue) == 3
@@ -108,16 +124,21 @@ ignoredParameters = {
 }
 #: Scenic object properties not included in generated samples
 defaultIgnoredProperties = {
-    'viewAngle', 'visibleDistance', 'cameraOffset',
-    'allowCollisions', 'requireVisible', 'regionContainedIn',
-    'mutator', 'mutationEnabled', 'positionStdDev', 'headingStdDev',
-    'behavior',
+    'shape',
+    'viewAngle', 'viewAngles', 'visibleDistance', 'cameraOffset',
+    'viewRayDensity', 'viewRayCount', 'viewRayDistanceScaling',
+    'baseOffset', 'contactTolerance', 'onDirection', 'sideComponentThresholds',
+    'allowCollisions', 'requireVisible', 'regionContainedIn', 'occluding',
+    'showVisibleRegion',
+    'mutator', 'mutationEnabled', 'mutationScale',
+    'positionStdDev', 'headingStdDev', 'orientationStdDev',
+    'behavior', 'lastActions',
 }
-# certain built-in properties requiring type normalization
+# certain built-in properties requiring type normalization before Scenic 3
 normalizedProperties = {
     'position': Vector,
     'heading': float
-}
+} if scenicMajorVersion < 3 else {}
 # hard-coded Domains for certain properties
 specialDomainProperties = {
     'webotsType': Categorical(*(model.name for model in webotsCarModels)),
@@ -128,7 +149,7 @@ def domainForObject(obj, ignoredProperties):
     """Construct a Domain for the given Scenic Object"""
     domains = {}
     for prop in obj.properties:
-        if prop in ignoredProperties:
+        if prop in ignoredProperties or prop.startswith('_'):
             continue
         value = getattr(obj, prop)
         if prop in normalizedProperties:
@@ -157,6 +178,11 @@ def pointForObject(dom, obj):
     for prop, subdom in dom.domainNamed.items():
         if prop == 'type':      # special case for 'type' pseudo-property
             scenicValue = type(obj).__name__
+        elif (prop == 'speed'
+              and isinstance(subdom, Constant)
+              and scenicMajorVersion < 3):
+            # work around bug in Scenic 2.1
+            scenicValue = subdom.value
         else:
             scenicValue = getattr(obj, prop)
         values.append(pointForValue(subdom, scenicValue))
@@ -168,7 +194,10 @@ def spaceForScenario(scenario, ignoredProperties):
     assert scenario.egoObject is scenario.objects[0]
     doms = (domainForObject(obj, ignoredProperties)
             for obj in scenario.objects)
-    objects = Struct({ f'object{i}': dom for i, dom in enumerate(doms) })
+    objects = Struct({
+        ScenicSampler.nameForObject(i): dom
+        for i, dom in enumerate(doms)
+    })
 
     # create domains for global parameters
     paramDoms = {}
@@ -215,55 +244,73 @@ class ScenicSampler(FeatureSampler):
 
     @classmethod
     def fromScenario(cls, path, maxIterations=None,
-                     params={}, model=None, scenario=None,
-                     ignoredProperties=None):
+                     ignoredProperties=None, **kwargs):
         """Create a sampler corresponding to a Scenic program.
 
         The only required argument is ``path``, and ``maxIterations`` may be useful if
         your scenario requires a very large number of rejection sampling iterations.
-        See `scenic.scenarioFromFile` for details on the optional arguments used to
+        See `scenic.scenarioFromFile` for details on optional keyword arguments used to
         customize compilation of the Scenic file.
 
         Args:
             path (str): path to a Scenic file.
             maxIterations (int): maximum number of rejection sampling iterations
               (default 2000).
-            params (dict): global parameters to override; see `scenic.scenarioFromFile`.
-            model (str): :term:`world model` to use; see `scenic.scenarioFromFile`.
-            scenario (str): :term:`modular scenario` to use; see `scenic.scenarioFromFile`.
             ignoredProperties: properties of Scenic objects to not include in
               generated samples (see ``defaultIgnoredProperties`` for the default).
+            kwargs: additional keyword arguments passed to `scenic.scenarioFromFile`;
+              e.g. ``params`` to override global parameters or ``model`` to set the
+              :term:`world model`.
         """
-        scenario = scenic.scenarioFromFile(path, params=params, model=model)
+        scenario = scenic.scenarioFromFile(path, **kwargs)
         return cls(scenario, maxIterations=maxIterations,
                    ignoredProperties=ignoredProperties)
 
     @classmethod
     def fromScenicCode(cls, code, maxIterations=None,
-                       params={}, model=None, scenario=None,
-                       ignoredProperties=None):
+                       ignoredProperties=None, **kwargs):
         """As above, but given a Scenic program as a string."""
-        scenario = scenic.scenarioFromString(code)
+        scenario = scenic.scenarioFromString(code, **kwargs)
         return cls(scenario, maxIterations=maxIterations,
                    ignoredProperties=ignoredProperties)
 
     def nextSample(self, feedback=None):
         ret = self.scenario.generate(
+<<<<<<< HEAD
             maxIterations=self.maxIterations, feedback=feedback, verbosity=0)
         print('(scenic_sampler.py) ret =', ret)
+=======
+            maxIterations=self.maxIterations, feedback=feedback, verbosity=0
+        )
+>>>>>>> 59480708048ad51fcd600d6742f2a1bb0f893690
         self.lastScene, _ = ret
         return self.pointForScene(self.lastScene)
 
     def pointForScene(self, scene):
-        """Convert a sampled Scenic :obj:`Scene` to a point in our feature space."""
+        """Convert a sampled Scenic :obj:`~scenic.core.scenarios.Scene` to a point in our feature space.
+
+        The `FeatureSpace` used by this sampler consists of 2 features:
+
+            * ``objects``, which is a `Struct` consisting of attributes ``object0``,
+              ``object1``, etc. with the properties of the corresponding objects
+              in the Scenic program. The names of these attributes may change in a
+              future version of VerifAI: use the `nameForObject` function to
+              generate them.
+            * ``params``, which is a `Struct` storing the values of the
+              :term:`global parameters` of the Scenic program (use
+              `paramDictForSample` to extract them).
+        """
         lengths, dom = self.space.domains
         assert lengths is None
         assert scene.egoObject is scene.objects[0]
         objDomain = dom.domainNamed['objects']
         assert len(objDomain.domains) == len(scene.objects)
-        objects = (pointForObject(objDomain.domainNamed[f'object{i}'], obj)
-                   for i, obj in enumerate(scene.objects))
-        objPoint = objDomain.makePoint(*objects)
+        objects = {
+            self.nameForObject(i):
+            pointForObject(objDomain.domainNamed[self.nameForObject(i)], obj)
+            for i, obj in enumerate(scene.objects)
+        }
+        objPoint = objDomain.makePoint(**objects)
 
         paramDomain = dom.domainNamed['params']
         params = {}
@@ -274,8 +321,17 @@ class ScenicSampler(FeatureSampler):
 
         return self.space.makePoint(objects=objPoint, params=paramPoint)
 
+    @staticmethod
+    def nameForObject(i):
+        """Name used in the `FeatureSpace` for the Scenic object with index i.
+
+        That is, if ``scene`` is a :obj:`~scenic.core.scenarios.Scene`, the object
+        ``scene.objects[i]``.
+        """
+        return f'object{i}'
+
     def paramDictForSample(self, sample):
-        """Recover the dict of global parameters from a `ScenicSampler` sample."""
+        """Recover the dict of :term:`global parameters` from a `ScenicSampler` sample."""
         params = sample.params._asdict()
         corrected = {}
         for newName, quotedParam in self.quotedParams.items():
