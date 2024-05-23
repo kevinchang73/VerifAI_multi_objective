@@ -2,7 +2,7 @@ import numpy as np
 
 from verifai.rulebook import rulebook
 
-class rulebook_multi01(rulebook):
+class rulebook_restrict_nav(rulebook):
     iteration = 0
 
     def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1):
@@ -49,7 +49,7 @@ class rulebook_multi01(rulebook):
             self.iteration += 1
 
         indices_0 = np.arange(start_index, switch_index)
-        indices_1 = np.arange(switch_index, len(ego_too_close))
+        indices_1 = np.arange(switch_index, len(trespass))
         rho0 = self.evaluate_segment(traj, 0, indices_0)
         rho1 = self.evaluate_segment(traj, 1, indices_1)
         return np.array([rho0, rho1])

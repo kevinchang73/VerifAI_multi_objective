@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 from multi import *
-from multi_01_rulebook import rulebook_multi01
+from restrict_nav_rulebook import rulebook_restrict_nav 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     np.random.seed(args.seed)
     
     print('output_dir =', args.output_dir)
-    rb = rulebook_multi01(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph, using_sampler=args.using_sampler)
+    rb = rulebook_restrict_nav(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph, using_sampler=args.using_sampler)
     run_experiments(args.scenic_path, rulebook=rb,
     parallel=args.parallel, model=args.model,
     sampler_type=args.sampler_type, headless=args.headless,

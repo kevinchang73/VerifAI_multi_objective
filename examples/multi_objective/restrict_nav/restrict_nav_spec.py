@@ -19,7 +19,10 @@ def rule1(simulation, indices):
     """
     if indices.size == 0:
         return 1
-    pass
+    ego_too_close = np.array(simulation.result.records['ego_too_close'])[:, 1][indices]
+    overalap = np.max(ego_too_close)
+    return -1 * overlap
+
 
 def rule2(simulation, indices):
     """
