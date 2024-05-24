@@ -44,7 +44,9 @@ region_center = (1, 4.5, z_offset)
 
 restricted_region = RectangularRegion(region_center, 0, 1.5, 1.5)
 
-ego = new HSR_Robot on (0, 0, z_offset), with yaw -90 deg, with behavior NavTo(destination)
+# ego = new HSR_Robot on (0, 0, z_offset), with yaw -90 deg, with behavior NavTo(destination)
+ego = new HSR_Robot on (globalParameters.EGO_X, globalParameters.EGO_Y, z_offset), 
+                                with yaw -90 deg, with behavior NavTo(destination)
 
 # TODO add some horizontal distributions to the table. 
 # could try to force errors in restriction zone, 'hesitation', and collision
