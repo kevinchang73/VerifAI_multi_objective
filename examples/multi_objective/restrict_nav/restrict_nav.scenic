@@ -31,6 +31,9 @@ param CHAIR_2_X = VerifaiRange(5, 6.5)
 param CHAIR_2_Y = VerifaiRange(0, 3)
 param CHAIR_2_YAW = VerifaiRange(0, 180)
 
+param EGO_Y = VerifaiRange(-2, 0)
+param EGO_X = VerifaiRange(-0.5, 0.5)
+
 z_offset = 0.32
 destination = (6, 4, z_offset)
 target_orientation = 0
@@ -53,7 +56,7 @@ chair2 = new Chair on (globalParameters.CHAIR_2_X, globalParameters.CHAIR_2_Y, z
 OBSTACLES = [table, chair, chair2]
 
 
-terminate after 500 steps
+terminate after 600 steps
 
 require not (table intersects center_unit_region.footprint)
 require not (table intersects tree_region.footprint)
