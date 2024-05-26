@@ -13,11 +13,17 @@ if blocked, then go to restricted zone
 """
 
 behavior NavTo(dest):
-    x = dest[0]
-    y = dest[1]
-    # TODO specify a time out?
-    do GoAbs(x=x, y=y, yaw=0.0)
-    terminate
+    try:
+        while True:
+            do GoRel(x=1)
+
+    interrupt when self.distanceToCloseset(KitchenTable) <= 2:
+        take CancelGoalAction()
+        x = dest[0]
+        y = dest[1]
+        # TODO specify a time out?
+        do GoAbs(x=x, y=y, yaw=0.0)
+        terminate
 
 
 # param TABLE_X = VerifaiRange(5, 6.5)
@@ -56,7 +62,7 @@ table2 = new KitchenTable on (globalParameters.TABLE_2_X, globalParameters.TABLE
 
 OBSTACLES = [table, table2]
 
-terminate after 600 steps
+terminate after 800 steps
 
 require not (table intersects center_unit_region.footprint)
 require not (table intersects tree_region.footprint)
@@ -65,6 +71,9 @@ require not (table intersects corridor_shelf_region.footprint)
 require not (table2 intersects center_unit_region.footprint)
 require not (table2 intersects tree_region.footprint)
 require not (table2 intersects corridor_shelf_region.footprint)
+
+require distance from table to ego >= 2.5
+require distance from table2 to ego >= 2.5
 
 record ego intersects restricted_region.footprint as trespass
 record max([ego.boundingCircle.intersect(obs.occupiedSpace).size for obs in OBSTACLES]) as ego_too_close
