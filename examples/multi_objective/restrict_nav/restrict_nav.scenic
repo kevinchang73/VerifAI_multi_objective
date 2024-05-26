@@ -5,7 +5,7 @@ from scenic.simulators.hsr.behaviors import *
 from scenic.simulators.hsr.actions import *
 import math
 import time
-
+import matplotlib.pyplot as plt
 
 """
 have the HSR travel to a specific region without going through a restricted zone
@@ -15,9 +15,9 @@ if blocked, then go to restricted zone
 behavior NavTo(dest):
     try:
         while True:
-            do GoRel(x=1)
+            do GoRel(x=1) # probably do GoRel 0.5?
 
-    interrupt when self.distanceToCloseset(KitchenTable) <= 2:
+    interrupt when self.distanceToClosest(KitchenTable) <= 2:
         take CancelGoalAction()
         x = dest[0]
         y = dest[1]
@@ -49,7 +49,7 @@ center_unit_region = RectangularRegion((3, 3, z_offset), 0, 3.0, 3.0)
 tree_region = CircularRegion((6.5, 0, z_offset), 0.5)
 corridor_shelf_region = RectangularRegion((1.5, -0.84, z_offset), 0, 3, 0.32)
 
-restricted_region = RectangularRegion((1, 4.5, z_offset), 0, 3, 3)
+restricted_region = RectangularRegion((1, 5.0, z_offset), 0, 3, 3)
 
 ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
 
@@ -61,6 +61,7 @@ table2 = new KitchenTable on (globalParameters.TABLE_2_X, globalParameters.TABLE
                                         with name 'KitchenTable102'
 
 OBSTACLES = [table, table2]
+
 
 terminate after 800 steps
 
@@ -77,6 +78,6 @@ require distance from table2 to ego >= 2.5
 
 record ego intersects restricted_region.footprint as trespass
 record max([ego.boundingCircle.intersect(obs.occupiedSpace).size for obs in OBSTACLES]) as ego_too_close
-record min([(distance from ego to table) for table in OBSTACLES]) as table_dist
+record min([(distance from ego to obs) for obs in OBSTACLES]) as table_dist
 record (ego.position - destination).norm() as dist_to_goal
 

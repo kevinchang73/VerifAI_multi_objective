@@ -45,5 +45,5 @@ if __name__ == '__main__':
     parallel=args.parallel, model=args.model,
     sampler_type=args.sampler_type, headless=args.headless,
     num_workers=args.num_workers, output_dir=args.output_csv_dir, experiment_name=args.experiment_name,
-    max_time=args.max_time, n_iters=args.n_iters)
+    max_time=args.max_time, n_iters=args.n_iters, max_steps=800)
     

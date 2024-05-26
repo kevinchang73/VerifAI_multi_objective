@@ -7,7 +7,7 @@ sampler_idx=0 # 0 / 1 / -1 (-1 is for alternate)
 sampler_type=demab # demab / dmab / random / dce / halton / udemab
 simulator=scenic.simulators.hsr.model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
 to_plot="False" # True / False
-seed='0'
+seed=1
 
 rm $scenario/outputs/*traj*.txt
 rm $scenario/outputs/*traj*.png
