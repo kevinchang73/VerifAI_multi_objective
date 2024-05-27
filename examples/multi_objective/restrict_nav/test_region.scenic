@@ -51,33 +51,31 @@ corridor_shelf_region = RectangularRegion((1.5, -0.84, z_offset), 0, 3, 0.32)
 
 restricted_region = RectangularRegion((3, 5.0, z_offset), 0, 4, 4)
 
-ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
-
-table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
-# table = new KitchenTable on (3, 0.7, z_offset), with yaw 90 deg 
-
-table2 = new KitchenTable on (5, globalParameters.TABLE_2_Y, z_offset), 
-                                        with yaw globalParameters.TABLE_2_YAW deg,
-                                        with name 'KitchenTable102'
-
-OBSTACLES = [table, table2]
+for i in range(100):
+    bottle = new BottleWithMarker on restricted_region, with name f"Bottle10{i}"
 
 
-terminate after 800 steps
+terminate after 50 steps
 
-# require not (table intersects center_unit_region.footprint)
-# require not (table intersects tree_region.footprint)
-# require not (table intersects corridor_shelf_region.footprint)
+# ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
 
-# require not (table2 intersects center_unit_region.footprint)
-# require not (table2 intersects tree_region.footprint)
-# require not (table2 intersects corridor_shelf_region.footprint)
+# table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+# # table = new KitchenTable on (3, 0.7, z_offset), with yaw 90 deg 
 
-require distance from table to ego >= 2.5
-require distance from table2 to ego >= 2.5
+# table2 = new KitchenTable on (5, globalParameters.TABLE_2_Y, z_offset), 
+                                        # with yaw globalParameters.TABLE_2_YAW deg,
+                                        # with name 'KitchenTable102'
 
-record ego intersects restricted_region.footprint as trespass
-record max([ego.boundingCircle.intersect(obs.occupiedSpace).size for obs in OBSTACLES]) as ego_too_close
-record min([(distance from ego to obs) for obs in OBSTACLES]) as table_dist
-record (ego.position - destination).norm() as dist_to_goal
+# OBSTACLES = [table, table2]
+
+
+# terminate after 800 steps
+
+# require distance from table to ego >= 2.5
+# require distance from table2 to ego >= 2.5
+
+# record ego intersects restricted_region.footprint as trespass
+# record max([ego.boundingCircle.intersect(obs.occupiedSpace).size for obs in OBSTACLES]) as ego_too_close
+# record min([(distance from ego to obs) for obs in OBSTACLES]) as table_dist
+# record (ego.position - destination).norm() as dist_to_goal
 

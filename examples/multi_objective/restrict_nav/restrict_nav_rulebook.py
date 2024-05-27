@@ -25,6 +25,8 @@ class rulebook_restrict_nav(rulebook):
             if table_dist[i][1] <=2:
                 switch_index = i
 
+        print(f"SWITCH INDEX: {switch_index}")
+        print(f"SAVE PATH: {self.save_path}")
         if self.save_path is not None:
             file_name = f"{self.save_path}/restrict_nav_{self.iteration}.txt"
             print("Writing trajectory to ", file_name)

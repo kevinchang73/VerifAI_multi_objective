@@ -17,7 +17,7 @@ rm $scenario/outputs/$csv_file.csv
 rm $scenario/outputs/$csv_file\_scatter.png
 
 
-python3 $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs >> $scenario/outputs/$log_file
+python3 $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -o $scenario/ouptuts -co $scenario/outputs >> $scenario/outputs/$log_file
 
         #python3 $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs -o $scenario/outputs >> $scenario/outputs/$log_file
 #for seed in $(seq 0 2);

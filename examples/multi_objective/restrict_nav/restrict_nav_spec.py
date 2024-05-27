@@ -32,6 +32,7 @@ def rule2(simulation, indices):
     if indices.size == 0:
         return 1
     trespass = np.array(simulation.result.records['trespass'])[:, 1][indices]
+    # print(f'TRESPASS{trespass}')
 
     if np.any(trespass):
         return -1

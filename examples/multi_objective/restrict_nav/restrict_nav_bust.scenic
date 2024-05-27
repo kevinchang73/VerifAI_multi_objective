@@ -27,12 +27,12 @@ behavior NavTo(dest):
 
 
 # param TABLE_X = VerifaiRange(5, 6.5)
-# param TABLE_X = VerifaiRange(3, 6.5)
-param TABLE_Y = VerifaiRange(0.2, 0.5)
+param TABLE_X = VerifaiRange(3, 6.5)
+param TABLE_Y = VerifaiRange(-0.5, 1.5)
 param TABLE_YAW = VerifaiRange(0, 180)
 
-# param TABLE_2_X = VerifaiRange(3, 6.5)
-param TABLE_2_Y = VerifaiRange(0.2, 0.5)
+param TABLE_2_X = VerifaiRange(3, 6.5)
+param TABLE_2_Y = VerifaiRange(-0.5, 1.5)
 param TABLE_2_YAW = VerifaiRange(0, 180)
 
 param EGO_Y = VerifaiRange(-0.3, 1) 
@@ -45,18 +45,18 @@ destination = (6, 4, z_offset)
 target_orientation = 0
 
 # center_unit_region = RectangularRegion((3, 3, z_offset), 0, 1.5, 1.5)
-# center_unit_region = RectangularRegion((3, 3, z_offset), 0, 3.0, 3.0)
-# tree_region = CircularRegion((6.5, 0, z_offset), 0.5)
+center_unit_region = RectangularRegion((3, 3, z_offset), 0, 3.0, 3.0)
+tree_region = CircularRegion((6.5, 0, z_offset), 0.5)
 corridor_shelf_region = RectangularRegion((1.5, -0.84, z_offset), 0, 3, 0.32)
 
-restricted_region = RectangularRegion((3, 5.0, z_offset), 0, 4, 4)
+restricted_region = RectangularRegion((1, 5.0, z_offset), 0, 3, 3)
 
 ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
 
-table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
-# table = new KitchenTable on (3, 0.7, z_offset), with yaw 90 deg 
+# table = new HighTable on (globalParameters.TABLE_X, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+table = new KitchenTable on (globalParameters.TABLE_X, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
 
-table2 = new KitchenTable on (5, globalParameters.TABLE_2_Y, z_offset), 
+table2 = new KitchenTable on (globalParameters.TABLE_2_X, globalParameters.TABLE_2_Y, z_offset), 
                                         with yaw globalParameters.TABLE_2_YAW deg,
                                         with name 'KitchenTable102'
 
@@ -65,13 +65,13 @@ OBSTACLES = [table, table2]
 
 terminate after 800 steps
 
-# require not (table intersects center_unit_region.footprint)
-# require not (table intersects tree_region.footprint)
-# require not (table intersects corridor_shelf_region.footprint)
+require not (table intersects center_unit_region.footprint)
+require not (table intersects tree_region.footprint)
+require not (table intersects corridor_shelf_region.footprint)
 
-# require not (table2 intersects center_unit_region.footprint)
-# require not (table2 intersects tree_region.footprint)
-# require not (table2 intersects corridor_shelf_region.footprint)
+require not (table2 intersects center_unit_region.footprint)
+require not (table2 intersects tree_region.footprint)
+require not (table2 intersects corridor_shelf_region.footprint)
 
 require distance from table to ego >= 2.5
 require distance from table2 to ego >= 2.5
