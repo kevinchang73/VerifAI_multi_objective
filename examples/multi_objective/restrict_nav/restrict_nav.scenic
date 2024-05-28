@@ -14,24 +14,35 @@ if blocked, then go to restricted zone
 
 
 # param TABLE_X = VerifaiRange(5, 6.5)
-# param TABLE_X = VerifaiRange(3, 6.5)
+param TABLE_X = VerifaiRange(3, 4)
 param TABLE_Y = VerifaiRange(0.2, 0.5)
 param TABLE_YAW = VerifaiRange(0, 180)
 
-# param TABLE_2_X = VerifaiRange(3, 6.5)
+# param TABLE_2_X = VerifaiRange(5.5, 5.5)
 param TABLE_2_Y = VerifaiRange(0.2, 0.5)
 param TABLE_2_YAW = VerifaiRange(0, 180)
 
 param EGO_Y = VerifaiRange(-0.3, 1) 
 
-param WAYPOINT = VerifaiRange(0.6, 2)
+# param WAYPOINT = VerifaiRange(1, 2)
+param WAYPOINT = VerifaiRange(0.7, 2)
 
 behavior NavTo(dest):
     try:
-        while True:
+        do GoRel(x=1.5) # probably do GoRel 0.5?
+        for _ in range (5):
+            print("NAVING!!!")
             do GoRel(x=0.5) # probably do GoRel 0.5?
 
-    interrupt when self.distanceToClosest(KitchenTable) <= globalParameters.WAYPOINT:
+        x = dest[0]
+        y = dest[1]
+        # TODO specify a time out?
+        do GoAbs(x=x, y=y, yaw=0.0)
+        terminate
+
+    interrupt when (self.distanceToClosest(KitchenTable) <= globalParameters.WAYPOINT or \
+                     ego.boundingCircle.intersect(self.getClosest(KitchenTable).occupiedSpace).size > 0  ):
+        print('CANCELLING!!!')
         take CancelGoalAction()
         x = dest[0]
         y = dest[1]
@@ -62,7 +73,8 @@ restricted_region = RectangularRegion((3, 5.0, z_offset), 0, 4, 4)
 
 ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
 
-table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+# table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+table = new KitchenTable on (globalParameters.Table_X, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
 # table = new KitchenTable on (3, 0.7, z_offset), with yaw 90 deg 
 
 table2 = new KitchenTable on (5, globalParameters.TABLE_2_Y, z_offset), 
@@ -73,17 +85,6 @@ OBSTACLES = [table, table2]
 
 
 terminate after 800 steps
-
-# require not (table intersects center_unit_region.footprint)
-# require not (table intersects tree_region.footprint)
-# require not (table intersects corridor_shelf_region.footprint)
-
-# require not (table2 intersects center_unit_region.footprint)
-# require not (table2 intersects tree_region.footprint)
-# require not (table2 intersects corridor_shelf_region.footprint)
-
-# require distance from table to ego >= 2.5
-# require distance from table2 to ego >= 2.5
 
 record ego intersects restricted_region.footprint as trespass
 record max([ego.boundingCircle.intersect(obs.occupiedSpace).size for obs in OBSTACLES]) as ego_too_close
