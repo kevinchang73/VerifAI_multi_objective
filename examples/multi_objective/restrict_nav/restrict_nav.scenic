@@ -14,12 +14,12 @@ if blocked, then go to restricted zone
 
 
 # param TABLE_X = VerifaiRange(5, 6.5)
-param TABLE_X = VerifaiRange(3, 4)
+# param TABLE_X = VerifaiRange(3, 4)
 param TABLE_Y = VerifaiRange(0.2, 0.5)
 param TABLE_YAW = VerifaiRange(0, 180)
 
 # param TABLE_2_X = VerifaiRange(5.5, 5.5)
-param TABLE_2_Y = VerifaiRange(0.2, 0.5)
+param TABLE_2_Y = VerifaiRange(1.0, 1.5)
 param TABLE_2_YAW = VerifaiRange(0, 180)
 
 param EGO_Y = VerifaiRange(-0.3, 1) 
@@ -29,10 +29,14 @@ param WAYPOINT = VerifaiRange(0.7, 2)
 
 behavior NavTo(dest):
     try:
-        do GoRel(x=1.5) # probably do GoRel 0.5?
-        for _ in range (5):
-            print("NAVING!!!")
-            do GoRel(x=0.5) # probably do GoRel 0.5?
+        do GoRel(x=2) # probably do GoRel 0.5?
+        do GoRel(0.5)
+        # do GoRel(0.)
+        # do GoRel(x=1)
+        # do GoRel(0.5)
+        # for _ in range (2):
+            # print("NAVING!!!")
+            # do GoRel(x=1) # probably do GoRel 0.5?
 
         x = dest[0]
         y = dest[1]
@@ -49,12 +53,6 @@ behavior NavTo(dest):
         # TODO specify a time out?
         do GoAbs(x=x, y=y, yaw=0.0)
         terminate
-
-    # x = dest[0]
-    # y = dest[1]
-    # # TODO specify a time out?
-    # do GoAbs(x=x, y=y, yaw=0.0)
-    # terminate
 
 
 '''
@@ -73,11 +71,11 @@ restricted_region = RectangularRegion((3, 5.0, z_offset), 0, 4, 4)
 
 ego = new HSR_Robot on (0, globalParameters.EGO_Y, z_offset), with yaw -90 deg, with behavior NavTo(destination)
 
-# table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
-table = new KitchenTable on (globalParameters.Table_X, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+table = new KitchenTable on (3, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
+# table = new KitchenTable on (globalParameters.TABLE_X, globalParameters.TABLE_Y, z_offset), with yaw globalParameters.TABLE_YAW deg 
 # table = new KitchenTable on (3, 0.7, z_offset), with yaw 90 deg 
 
-table2 = new KitchenTable on (5, globalParameters.TABLE_2_Y, z_offset), 
+table2 = new KitchenTable on (6, globalParameters.TABLE_2_Y, z_offset), 
                                         with yaw globalParameters.TABLE_2_YAW deg,
                                         with name 'KitchenTable102'
 
