@@ -1,0 +1,2 @@
+pythonn -m pdb multi_hri/multi_hri.py -n 2 --headless -e multi_hri -sp  multi_hri/proj_scene_verifai.scenic -gp multi_hri/ -rp multi_hri/multi_hri_spec.py -s demab -o multi_hri/outputs -m scenic.simulators.habitat.model
+python multi_hri/multi_hri.py -n 2 --headless -e multi_hri -sp  multi_hri/proj_scene_verifai.scenic -gp multi_hri/ -rp multi_hri/multi_hri_spec.py -s demab -o multi_hri/outputs -m scenic.simulators.habitat.model
