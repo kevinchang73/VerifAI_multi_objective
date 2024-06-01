@@ -1,11 +1,11 @@
-iteration=10
-scenario='restrict_nav'
+iteration=50
+scenario='multi_hri'
 log_file="result_${scenario}_demab0.log"
 result_file="result_${scenario}_demab0.txt"
 csv_file="result_${scenario}_demab0"
 sampler_idx=0 # 0 / 1 / -1 (-1 is for alternate)
 sampler_type=demab # demab / dmab / random / dce / halton / udemab
-simulator=scenic.simulators.hsr.model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
+simulator=scenic.simulators.habitat.model # scenic.simulators.carla.model / scenic.simulators.newtonian.driving_model
 to_plot="False" # True / False
 
 rm $scenario/outputs/*traj*.txt
@@ -23,7 +23,7 @@ do
         #    python $scenario/util/$scenario\_plot_traj.py $scenario/outputs/$scenario\_traj_$i.txt
         #done
     else
-        python3 $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs >> $scenario/outputs/$log_file
+        python3 $scenario/$scenario.py -n $iteration --headless -e $csv_file.$seed -sp $scenario/$scenario.scenic -gp $scenario/ -rp $scenario/$scenario\_spec.py -s $sampler_type --seed $seed --using-sampler $sampler_idx -m $simulator -co $scenario/outputs -o $scenario/outputs >> $scenario/outputs/$log_file
     fi
 done
 #python $scenario/util/$scenario\_collect_result.py $scenario/outputs/$log_file multi $sampler_idx >> $scenario/outputs/$result_file
