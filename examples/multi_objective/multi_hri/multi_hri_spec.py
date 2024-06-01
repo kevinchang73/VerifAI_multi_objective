@@ -9,13 +9,14 @@ def rule0(simulation, indices):
         return 1
 
     desired_bot_dist = 1.0
-    print(f"BOT DIST: {simulation.result.records['bot_dist']}") 
-    print(f"BOT DIST ARR: {np.array(simulation.result.records['bot_dist'])}") 
-    print(f"BOT DIST ARR2: {np.array(simulation.result.records['bot_dist'])[:, 1]}") 
-    print(f"INDICES: {indices}")
+    # print(f"BOT DIST: {simulation.result.records['bot_dist']}") 
+    # print(f"BOT DIST ARR: {np.array(simulation.result.records['bot_dist'])}") 
+    # print(f"BOT DIST ARR2: {np.array(simulation.result.records['bot_dist'])[:, 1]}") 
+    # print(f"INDICES: {indices}")
     bot_dist = np.array(simulation.result.records['bot_dist'])[:, 1][indices]
-    print(f"BOT DIST{bot_dist}")
-    rho = min(0, np.min(bot_dist) - desired_bot_dist)
+    # print(f"BOT DIST{bot_dist}")
+    # rho = min(0, np.min(bot_dist) - desired_bot_dist)
+    rho = np.min(bot_dist) - desired_bot_dist 
     return rho 
 
 
