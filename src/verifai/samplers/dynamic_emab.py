@@ -117,7 +117,8 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
     
     def generateSample(self):
         proportions = self.errors / self.counts
-        Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
+        # Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
+        Q = proportions + np.sqrt(1 / self.counts * np.log(self.t))
         # choose the bucket with the highest "goodness" value, breaking ties randomly.
         bucket_samples = np.array([np.random.choice(np.flatnonzero(np.isclose(Q[i], Q[i].max())))
             for i in range(len(self.buckets))])
