@@ -160,7 +160,13 @@ class falsifier(ABC):
             while True:
                 try:
                     print('(falsifier.py) run_falsifier')
-                    sample, rho, timings = self.server.run_server()
+                    while True:
+                        try:
+                            sample, rho, timings = self.server.run_server()
+                            break
+                        except:
+                            continue
+
                     self.total_sample_time += timings.sample_time
                     self.total_simulate_time += timings.simulate_time
                 except TerminationException:
