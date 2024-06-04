@@ -22,7 +22,8 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
                                                      buckets=self.cont_buckets,
                                                      dist=self.cont_dist,
                                                      alpha=self.alpha,
-                                                     thres=self.thres)
+                                                     thres=self.thres,
+                                                     exploration_ratio=rulebook.exploration_ratio)
         self.disc_ce = lambda domain: DiscreteDynamicEMABSampler(domain=domain,
                                                    dist=self.disc_dist,
                                                    alpha=self.alpha,
@@ -75,17 +76,18 @@ class DynamicExtendedMultiArmedBanditSampler(DomainSampler):
             return
         if self.using_sampler == -1:
             print('(dynamic_emab.py) Getting feedback from segment', self.sampler_idx % self.num_segs)
+            for i in range(len(rhos)):
+                self.split_samplers[i].update(sample, info, rhos[i])
         else:
             print('(dynamic_emab.py) Getting feedback from segment', self.using_sampler)
-        for i in range(len(rhos)):
-            self.split_samplers[i].update(sample, info, rhos[i])
+            self.split_samplers[self.using_sampler].update(sample, info, rhos[self.using_sampler])
         self.sampler_idx += 1
 
 class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
-    verbosity = 2
+    verbosity = 1
 
     def __init__(self, domain, alpha, thres,
-                 buckets=10, dist=None, restart_every=100):
+                 buckets=10, dist=None, restart_every=100, exploration_ratio=2.0):
         super().__init__(domain)
         if isinstance(buckets, int):
             buckets = np.ones(self.dimension) * buckets
@@ -111,13 +113,14 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
         self.monitor = None
         self.rho_values = []
         self.restart_every = restart_every
+        self.exploration_ratio = exploration_ratio
 
     def getVector(self):
         return self.generateSample()
     
     def generateSample(self):
         proportions = self.errors / self.counts
-        Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
+        Q = proportions + np.sqrt(self.exploration_ratio / self.counts * np.log(self.t))
         # choose the bucket with the highest "goodness" value, breaking ties randomly.
         bucket_samples = np.array([np.random.choice(np.flatnonzero(np.isclose(Q[i], Q[i].max())))
             for i in range(len(self.buckets))])
@@ -180,6 +183,9 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
         
         counter_ex = tuple(rho[node] < self.thres[node] for node in sorted(self.priority_graph.nodes))
         error_value = self._compute_error_value(counter_ex)
+        if rulebook.using_continuous:
+            error_value = self._compute_error_value_continuous(rho)
+            print('(dynamic_emab.py) error_value =', error_value)
         self._update_counterexample(counter_ex)
         for i, b in enumerate(info):
             self.counts[i][b] += self.sum_error_weight
@@ -196,13 +202,19 @@ class ContinuousDynamicEMABSampler(BoxSampler, MultiObjectiveSampler):
             proportions = self.errors / self.counts
             print('self.errors[0] =', self.errors[0])
             print('self.counts[0] =', self.counts[0])
-            Q = proportions + np.sqrt(2 / self.counts * np.log(self.t))
-            print('Q[0] =', Q[0], '\nfirst_term[0] =', proportions[0], '\nsecond_term[0] =', np.sqrt(2 / self.counts * np.log(self.t))[0], '\nratio[0] =', proportions[0]/(proportions+np.sqrt(2 / self.counts * np.log(self.t)))[0])
+            Q = proportions + np.sqrt(self.exploration_ratio / self.counts * np.log(self.t))
+            print('Q[0] =', Q[0], '\nfirst_term[0] =', proportions[0], '\nsecond_term[0] =', np.sqrt(self.exploration_ratio / self.counts * np.log(self.t))[0], '\nratio[0] =', proportions[0]/(proportions+np.sqrt(self.exploration_ratio / self.counts * np.log(self.t)))[0])
 
     def _compute_error_value(self, counter_ex):
         error_value = 0
         for i in range(len(counter_ex)):
             error_value += 2**(self.error_weight[i]) * counter_ex[i]
+        return error_value
+    
+    def _compute_error_value_continuous(self, rho):
+        error_value = 0
+        for i in range(len(rho)):
+            error_value += 2**(self.error_weight[i]) * -1 * rho[i]
         return error_value
     
     def compute_error_weight(self):

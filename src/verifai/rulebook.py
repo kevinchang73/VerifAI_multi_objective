@@ -18,6 +18,8 @@ class rulebook(ABC):
     priority_graphs = {}
     using_sampler = -1
     verbosity = 1
+    exploration_ratio = 2.0
+    using_continuous = False
     
     def __init__(self, graph_path, rule_file, single_graph=False):
         print('(rulebook.py) Parsing rules...')
