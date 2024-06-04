@@ -137,11 +137,19 @@ class ContinuousDynamicCESampler(BoxSampler, MultiObjectiveSampler):
         if len(rho) != self.num_properties:
             return
         
-        is_ce = False
+        # AND
+        is_ce = True
         for node in self.priority_graph.nodes:
-            if self.priority_graph.nodes[node]['active'] and rho[node] < self.thres[node]:
-                is_ce = True
+            if self.priority_graph.nodes[node]['active'] and rho[node] >= self.thres[node]:
+                is_ce = False
                 break
+        # OR
+        #is_ce = False
+        #for node in self.priority_graph.nodes:
+        #    if self.priority_graph.nodes[node]['active'] and rho[node] < self.thres[node]:
+        #        is_ce = True
+        #        break
+        
         if not is_ce:
             return
         print('(dynamic_ce.py) IS CE! Updating!!!')
