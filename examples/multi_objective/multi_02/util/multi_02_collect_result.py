@@ -13,6 +13,8 @@ curr_source = 0
 lines = infile.readlines()
 infile.close()
 
+count = 0
+
 for i in range(len(lines)):
     if order == '0':
         curr_source = 0
@@ -40,6 +42,10 @@ for i in range(len(lines)):
 
             if order == '-1':
                 curr_source = 1 - curr_source
+            
+            count += 1
+            if count == 900:
+                break
     else:
         if 'Actual rho' in lines[i]:
             line = lines[i].strip()

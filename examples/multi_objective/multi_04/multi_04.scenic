@@ -60,6 +60,7 @@ behavior Adv1Behavior(trajectory):
         do FollowTrajectoryBehavior(target_speed=globalParameters.ADV1_SPEED, trajectory=trajectory)
         #do FollowLaneBehavior(target_speed=globalParameters.ADV1_SPEED)
     interrupt when (distance from adv1 to ego) < SAFETY_DIST:
+    #interrupt when (distance from adv1 to ego) < SAFETY_DIST + 3:
         take SetBrakeAction(ADV_BRAKE)
 
 behavior Adv2Behavior(trajectory):
@@ -67,6 +68,8 @@ behavior Adv2Behavior(trajectory):
         do FollowTrajectoryBehavior(target_speed=globalParameters.ADV_SPEED, trajectory=trajectory)
         do FollowLaneBehavior(target_speed=globalParameters.ADV2_SPEED)
     interrupt when (distance from self to ped) < SAFETY_DIST:
+    #    take SetBrakeAction(ADV_BRAKE)
+    #interrupt when withinDistanceToAnyObjs(self, SAFETY_DIST + 3):
         take SetBrakeAction(ADV_BRAKE)
 
 behavior Adv3Behavior(trajectory):
@@ -74,6 +77,8 @@ behavior Adv3Behavior(trajectory):
         do FollowTrajectoryBehavior(target_speed=globalParameters.ADV_SPEED, trajectory=trajectory)
         do FollowLaneBehavior(target_speed=globalParameters.ADV_SPEED)
     interrupt when (distance from self to ped) < SAFETY_DIST:
+    #    take SetBrakeAction(ADV_BRAKE)
+    #interrupt when withinDistanceToAnyObjs(self, SAFETY_DIST + 3):
         take SetBrakeAction(ADV_BRAKE)
 
 behavior Adv4Behavior(trajectory):

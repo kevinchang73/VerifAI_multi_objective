@@ -15,6 +15,12 @@ ego_speed = []
 dist_threshold = []
 blocking_car_dist = []
 bypass_dist = []
+
+ego_speed_max = []
+dist_threshold_max = []
+blocking_car_dist_max = []
+bypass_dist_max = []
+
 for file in all_files:
     infile = open(directory+'/'+file, 'r')
     lines = infile.readlines()
@@ -31,15 +37,26 @@ for file in all_files:
             line1 = lines[i]
             line2 = lines[i+1]
             line3 = lines[i+2]
-            if float(line1.split(',')[-1]) < 0 or float(line1.split(',')[-2]) < 0 or float(line2.split(',')[-1]) < 0 or float(line2.split(',')[-2]) < 0 or float(line3.split(',')[-2]) < 0:
+            if float(line2.split(',')[-1]) < 0 and float(line2.split(',')[-2]) < 0:
+                ego_speed_max.append(float(line1.split(',')[-3]))
+                dist_threshold_max.append(float(line1.split(',')[-4]))
+                bypass_dist_max.append(float(line1.split(',')[-5]))
+                blocking_car_dist_max.append(float(line1.split(',')[-6]))
+            else:
                 ego_speed.append(float(line1.split(',')[-3]))
                 dist_threshold.append(float(line1.split(',')[-4]))
                 bypass_dist.append(float(line1.split(',')[-5]))
                 blocking_car_dist.append(float(line1.split(',')[-6]))
+            #if float(line1.split(',')[-1]) < 0 or float(line1.split(',')[-2]) < 0 or float(line2.split(',')[-1]) < 0 or float(line2.split(',')[-2]) < 0 or float(line3.split(',')[-2]) < 0:
+            #    ego_speed.append(float(line1.split(',')[-3]))
+            #    dist_threshold.append(float(line1.split(',')[-4]))
+            #    bypass_dist.append(float(line1.split(',')[-5]))
+            #    blocking_car_dist.append(float(line1.split(',')[-6]))
             #else:
             #    print(file, i)
 
-ax.scatter(ego_speed, dist_threshold, bypass_dist)
+ax.scatter(ego_speed, dist_threshold, bypass_dist, c='b')
+ax.scatter(ego_speed_max, dist_threshold_max, bypass_dist_max, c='r')
 ax.set_xlabel('EGO_SPEED')
 ax.set_ylabel('DIST_THRESHOLD')
 ax.set_zlabel('BYPASS_DIST')

@@ -1,10 +1,10 @@
 iteration=300
 scenario='multi_04'
-log_file="result_${scenario}_single.log"
-result_file="result_${scenario}_single.txt"
-csv_file="result_${scenario}_single"
+log_file="result_${scenario}_single_1.log"
+result_file="result_${scenario}_single_1.txt"
+csv_file="result_${scenario}_single_1"
 sampler_idx=0 #redundant for single graph
-sampler_type=demab # demab / dmab / random / dce / halton / udemab
+sampler_type=dmab # demab / dmab / random / dce / halton / udemab
 simulator=scenic.simulators.carla.model
 to_plot=False # True / False
 simulation_steps=600

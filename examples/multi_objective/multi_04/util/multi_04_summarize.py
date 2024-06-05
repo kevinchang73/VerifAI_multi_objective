@@ -8,7 +8,16 @@ file_names = ['result_multi_04_demab0.txt', 'result_multi_04_dmab0.txt', 'result
 
 # Segment 1
 print("Segment 1")
-file_names = ['result_multi_04_demab1.txt', 'result_multi_04_dmab1.txt', 'result_multi_04_random.txt', 'result_multi_04_single.txt']
+file_names = ['result_multi_04_demab1.txt', 'result_multi_04_dmab1.txt', 'result_multi_04_halton.txt']#, 'result_multi_04_single.txt']
+
+for file in file_names:
+    f = open(dir_name + file, 'r')
+    lines = f.readlines()
+    f.close()
+
+    line = lines[4].split(' ')
+    print(str(float(line[3]) / 83.0), str(float(line[1]) / 83.0), str(line[5]))
+
 for file in file_names:
     print(f"File: {file}")
     f = open(dir_name + file, 'r')
