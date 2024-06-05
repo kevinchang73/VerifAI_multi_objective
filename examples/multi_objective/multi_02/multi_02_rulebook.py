@@ -5,10 +5,13 @@ from verifai.rulebook import rulebook
 class rulebook_multi02(rulebook):
     iteration = 0
 
-    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1):
+    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1, exploration_ratio=2.0, use_dependency=False, using_continuous=False):
         rulebook.using_sampler = using_sampler
+        rulebook.exploration_ratio = exploration_ratio
+        rulebook.using_continuous = using_continuous
         super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
+        self.use_dependency = use_dependency
 
     def evaluate(self, traj):
         # Extract trajectory information
@@ -62,4 +65,20 @@ class rulebook_multi02(rulebook):
             return np.array([rho])
         rho0 = self.evaluate_segment(traj, 0, indices_0)
         rho1 = self.evaluate_segment(traj, 1, indices_1)
+        if rulebook.using_continuous:
+            print('Original rho:', rho0[0], rho0[1], rho1[2], rho1[3])
+            print('Normalized rho:', rho0[0]/2.0, rho0[1]/2.5, rho1[2]/8.0, rho1[3]/8.0)
+            rho0[0] = rho0[0]/2.0
+            rho0[1] = rho0[1]/2.5
+            rho1[2] = rho1[2]/8.0
+            rho1[3] = rho1[3]/8.0
+        if self.use_dependency:
+            print('Before dependency weighting:', rho0[0], rho0[1], rho1[2], rho1[3])
+            rho01 = rho0[1] - 0.879 * rho1[2]
+            rho12 = rho1[2] - 0.879 * rho0[1]
+            print('After dependency weighting:', rho0[0], rho01, rho12, rho1[3])
+            print('rho01 toggles:', np.sign(rho01) != np.sign(rho0[1]))
+            print('rho12 toggles:', np.sign(rho12) != np.sign(rho1[2]))
+            rho0[1] = rho01
+            rho1[2] = rho12
         return np.array([rho0, rho1])

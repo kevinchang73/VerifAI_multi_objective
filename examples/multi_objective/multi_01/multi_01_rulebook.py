@@ -5,8 +5,9 @@ from verifai.rulebook import rulebook
 class rulebook_multi01(rulebook):
     iteration = 0
 
-    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1):
+    def __init__(self, graph_path, rule_file, save_path=None, single_graph=False, using_sampler=-1, exploration_ratio=2.0):
         rulebook.using_sampler = using_sampler
+        rulebook.exploration_ratio = exploration_ratio
         super().__init__(graph_path, rule_file, single_graph=single_graph)
         self.save_path = save_path
 

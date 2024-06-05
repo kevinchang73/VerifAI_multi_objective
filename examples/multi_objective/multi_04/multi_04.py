@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
     parser.add_argument('--using-sampler', type=int, default=-1, help='Assigning sampler to use')
     parser.add_argument('--max-simulation-steps', type=int, default=300, help='Maximum number of simulation steps')
+    parser.add_argument('--exploration-ratio', type=float, default=2.0, help='Exploration ratio')
     args = parser.parse_args()
     if args.n_iters is None and args.max_time is None:
         raise ValueError('At least one of --n-iters or --max-time must be set')
@@ -40,7 +41,8 @@ if __name__ == '__main__':
     random.seed(args.seed)
     np.random.seed(args.seed)
     
-    rb = rulebook_multi04(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph, using_sampler=args.using_sampler)
+    rb = rulebook_multi04(args.graph_path, args.rule_path, save_path=args.output_dir, single_graph=args.single_graph, 
+                          using_sampler=args.using_sampler, exploration_ratio=args.exploration_ratio)
     run_experiments(args.scenic_path, rulebook=rb,
     parallel=args.parallel, model=args.model,
     sampler_type=args.sampler_type, headless=args.headless,
