@@ -1,12 +1,11 @@
 from scenic.domains.driving.roads import Network
-import copy
 
-behavior bench(agent_behavior):
+behavior bench():
 
     realization = globalParameters['realization']
     realization['network'] = Network.fromFile(globalParameters['map'])
     max_steps = realization['max_steps']
-    objects = simulation().objects
+    objects = simulation().objects[:-1]
     realization['mesh'] = [obj.shape.mesh.copy() for obj in objects]
     realization['object_type'] = [type(obj).__name__ for obj in objects]
     realization['trajectory'] = []
@@ -14,7 +13,7 @@ behavior bench(agent_behavior):
 
 
     while step < max_steps:
-        objects = simulation().objects
+        objects = simulation().objects[:-1]
         state = {} 
         state['position'] = []
         state['orientation'] = []
@@ -33,4 +32,7 @@ behavior bench(agent_behavior):
         if step == max_steps:
             break
         
-        do agent_behavior() for 1 steps   
+        wait
+
+
+BENCH_OBJ = new Object at (0, 0, -10), with behavior bench()
