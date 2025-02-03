@@ -13,7 +13,4 @@ behavior do_nothing():
 
  
 ego = Car with behavior simple()
-adv = Car with behavior do_nothing(), ahead of ego by 5
-
-
-import bench2
+adv = Car with behavior do_nothing(), ahead of ego by 3

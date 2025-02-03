@@ -12,8 +12,8 @@ behavior do_nothing():
         wait
 
  
-ego = Car with behavior simple()
-adv = Car with behavior do_nothing(), ahead of ego by 5
+ego = new Car with behavior simple()
+adv = new Car with behavior do_nothing(), ahead of ego by 5
 
 
-import bench2
+#import bench2
