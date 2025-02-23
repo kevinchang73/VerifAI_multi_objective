@@ -10,7 +10,9 @@ behavior bench():
     realization['object_type'] = [type(obj).__name__ for obj in objects]
     realization['trajectory'] = []
     realization['ego'] = objects[0]
+    realization['dimensions'] = [obj.occupiedSpace.dimensions for obj in objects]
     step = 0
+    realization['convex'] = [obj.shape.isConvex for obj in objects]
 
 
     while step < max_steps:
@@ -20,15 +22,14 @@ behavior bench():
         state['orientation'] = []
         state['orientation_trimesh'] = []
         state['velocity'] = []
+
         for obj in objects:
             state['position'].append((obj.position.x, obj.position.y, obj.position.z))
-            state['orientation'].append(obj.orientation.eulerAngles)
+            state['orientation'].append(obj.orientation)
             state['orientation_trimesh'].append(obj.orientation._trimeshEulerAngles())
             state['velocity'].append((obj.velocity.x, obj.velocity.y, obj.velocity.z))
             state['step'] = step
         realization['trajectory'].append(state)
-
-        
         step += 1
         if step == max_steps:
             break
@@ -36,4 +37,4 @@ behavior bench():
         wait
 
 
-BENCH_OBJ = Bench with behavior bench()
+BENCH_OBJ = new Bench with behavior bench()

@@ -5,15 +5,17 @@ model scenic.simulators.carla.model
 
 behavior simple():
     while True:
-        take SetThrottleAction(0.8)
+        take SetThrottleAction(1)
+        
+
 
 behavior do_nothing():
     while True:
         wait
 
  
-ego = Car with behavior simple()
-adv = Car with behavior do_nothing(), ahead of ego by 5
+ego = new Car with behavior simple()
+adv = new Car with behavior do_nothing(), ahead of ego by 10
 
 
-import bench2
+import bench
